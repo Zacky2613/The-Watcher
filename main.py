@@ -84,4 +84,4 @@ async def on_message(ctx):
 
 
 
-bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.GZl9uT.0OQGFbQzCGm1lziPIjOIwniJsZt0EdWqPRpGus")
+bot.run(os.environ["DISCORD_TOKEN"])
