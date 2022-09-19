@@ -4,8 +4,16 @@ import discord.utils
 import datetime
 import discord
 import asyncio
+import random
 import json
 import os
+
+messagelist = [
+    "🤨📸",
+    "stfu",
+    "life privileges removed",
+    "Bro, you had 1 job"
+]
 
 with open("./Json/words.json", "r") as f:
 	data = json.load(f)
@@ -24,7 +32,6 @@ async def slur_filter(content: str, ctx):
 
     for word in data["_banned_words"]:
         if word in ctx.content:
-
             await ctx.delete() 
 
             print(f'{time} | {username}: "{ctx.content}"')
@@ -33,14 +40,12 @@ async def slur_filter(content: str, ctx):
                 fh.write(f'\n{time} | {username}: "{ctx.content}"')
                 fh.close()
 
-            botmsg = await ctx.channel.send(f"{username.mention} shut up black monkey")
-            #await asyncio.sleep(2)
-
-            #await botmsg.delete()
+            await ctx.channel.send(f"{username.mention} {random.randint(0, len(messagelist))} <@&997059007799898172> <@&811902871029153802>")
 
         elif str(ctx.id) in data["_blocked_users"]:
             for letter in ctx.content.lower().replace(" ", ""):
                 if letter not in data["_allowed_letters"]:
+
                     await ctx.delete()
                     break
             break
