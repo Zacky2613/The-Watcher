@@ -34,9 +34,9 @@ async def slur_filter(content: str, ctx):
                 fh.close()
 
             botmsg = await ctx.channel.send(f"{username.mention} shut up black monkey")
-            await asyncio.sleep(2)
+            #await asyncio.sleep(2)
 
-            await botmsg.delete()
+            #await botmsg.delete()
 
         elif str(ctx.id) in data["_blocked_users"]:
             for letter in ctx.content.lower().replace(" ", ""):
