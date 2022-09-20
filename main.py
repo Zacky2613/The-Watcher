@@ -28,11 +28,12 @@ async def slur_filter(ctx: discord.message.Message):
     username = ctx.author
     time = datetime.datetime.now().strftime("%d/%m/%y %H:%M")
 
-    for i in data["_replace_letters"]:
-        ctx.content = ctx.content.lower().replace(
-            [i][0],
-            [i][1]
-        )
+    if ctx.content is not "debugtool":
+        for i in data["_replace_letters"]:
+            ctx.content = ctx.content.lower().replace(
+                i[0],
+                i[1]
+            )
 
     for word in data["_banned_words"]:
         if word in ctx.content:
@@ -40,10 +41,6 @@ async def slur_filter(ctx: discord.message.Message):
 
             print(f'{time} {username}: "{ctx.content}" ')
             # e.g: 20/09/22 user#0000: "debugtool"
-
-            with open('logs/logs', 'a') as f:
-                f.write(f'\n{time} {username}: {ctx.content}')
-                f.close()
 
             await ctx.channel.send(f"{username.mention} {messagelist[random.randint(0, len(messagelist)) - 1]}  <@&997059007799898172> <@&811902871029153802>")
 
@@ -85,4 +82,5 @@ async def on_message_edit(before, after):
 async def on_message(ctx):
     await slur_filter(ctx=ctx)
 
-bot.run(os.environ["DISCORD_TOKEN"])
+# bot.run(os.environ["DISCORD_TOKEN"])
+bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.GD_u8I.D3TbETCv_B6Y8_xR1b_8wiY099ftbtfan6Es9M")
