@@ -1,18 +1,51 @@
 {
     "_banned_words": [
         "debugtool",
-        "nigga",
-        "nigger",
+
         "niga",
+        "nigga",
+        "niggga",
+        "nigggga",
+
         "niger",
+        "nigger",
         "niggger",
-        ":regional_indicator_n:",
+        "nigggger",
+        
+        "🇳",
         ":regional_indicator_i:",
         ":regional_indicator_g:",
         ":regional_indicator_e:",
         ":regional_indicator_r:",
         ":regional_indicator_a:"
     ],
+
+    "comment2": "1st is original, second is what to change to",
+    "_replace_letters": [
+        [" ", ""],
+        ["/", ""],
+        ["-", ""],
+        ["_", ""],
+        ["\\", ""],
+
+        ["m", "n"],
+        ["w", "n"],
+
+        ["@", "a"],
+        ["()", "a"],
+
+        ["!", "i"],
+        ["1", "i"],
+        ["|", "i"],
+        ["*", "i"],
+        ["`", "i"],
+        ["^", "i"],
+        ["$", "i"],
+        ["l", "i"],
+        
+        ["()", "e"]
+    ],
+
     "_allowed_letters": [
         "a",
         "b",
