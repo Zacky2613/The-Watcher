@@ -16,40 +16,46 @@ messagelist = [
     "🤨📸",
     "stfu",
     "life privileges removed",
-    "Bro, you had 1 job"
+    "Bro, you had 1 job",
+    "Comeon man",
+    "Got yo ass"
 ]
 
-with open("./Json/words.json", "r") as f:
+with open("./json/words.json", "r") as f:
 	data = json.load(f)
 
 
 async def slur_filter(ctx: discord.message.Message):
     username = ctx.author
-    time = datetime.datetime.now().strftime("%d %b, %H:%M:%S")
+    time = datetime.datetime.now().strftime("%d/%m/%y %H:%M")
 
-    ctx.content = ctx.content.lower().replace(" ", "").replace("@", "a") \
-                .replace("!", "i").replace("m", "n").replace("_", "").replace("1", "i") \
-                .replace("w", "n").replace("/", "").replace("\\", "").replace("|", "i") \
-                .replace("*", "i").replace("`", "i").replace("^", "i").replace("-", "")
+    for i in data["_replace_letters"]:
+        ctx.content = ctx.content.lower().replace(
+            data["_replace_letters"][i][0],
+            data["_replace_letters"][i][1]
+        )
 
     for word in data["_banned_words"]:
         if word in ctx.content:
 
             await ctx.delete() 
 
-            print(f'{time} | {username}: "{ctx.content}"')
+            print(f'{time} {username}: {ctx.content} ')
+            # 20/09/22 zacky#9046: debugtool
 
-            with open('Logs/log.txt','a') as fh:
-                fh.write(f'\n{time} | {username}: "{ctx.content}"')
-                fh.close()
+            with open('logs/logs','a') as f:
+                f.write(f'\n{time} {username}: {ctx.content} ')
+                f.close()
 
-            await ctx.channel.send(f"{username.mention} {messagelist[random.randint(0, len(messagelist)) - 1]} <@&997059007799898172> <@&811902871029153802>")
+            await ctx.channel.send(f"{username.mention} {messagelist[random.randint(0, len(messagelist)) - 1]}  <@&997059007799898172> <@&811902871029153802>")
             
 
         elif str(ctx.id) in data["_blocked_users"]:
             for letter in ctx.content.lower().replace(" ", ""):
                 if letter not in data["_allowed_letters"]:
                     await ctx.delete()
+                    await ctx.channel.send(f"{username.mention} You've lost the privilege of saying special characters <:trollface:938366103934103622>")
+ 
                     break
             break
         
