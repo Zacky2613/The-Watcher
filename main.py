@@ -30,8 +30,8 @@ async def slur_filter(ctx: discord.message.Message):
 
     for i in data["_replace_letters"]:
         ctx.content = ctx.content.lower().replace(
-            data["_replace_letters"][i][0],
-            data["_replace_letters"][i][1]
+            [i][0],
+            [i][1]
         )
 
     for word in data["_banned_words"]:
