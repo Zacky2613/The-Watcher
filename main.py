@@ -20,7 +20,7 @@ messagelist = [
     "Got yo ass"
 ]
 
-with open("./json/words.json", "r") as f:
+with open("./Json/words.json", "r") as f:
     data = json.load(f)
 
 
