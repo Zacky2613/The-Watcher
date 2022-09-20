@@ -28,7 +28,7 @@ async def slur_filter(ctx: discord.message.Message):
     username = ctx.author
     time = datetime.datetime.now().strftime("%d/%m/%y %H:%M")
 
-    if ctx.content is not "debugtool":
+    if (ctx.content != "debugtool"):
         for i in data["_replace_letters"]:
             ctx.content = ctx.content.lower().replace(
                 i[0],
@@ -82,5 +82,5 @@ async def on_message_edit(before, after):
 async def on_message(ctx):
     await slur_filter(ctx=ctx)
 
-# bot.run(os.environ["DISCORD_TOKEN"])
-bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.GD_u8I.D3TbETCv_B6Y8_xR1b_8wiY099ftbtfan6Es9M")
+bot.run(os.environ["DISCORD_TOKEN"])
+
