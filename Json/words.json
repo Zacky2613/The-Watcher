@@ -10,17 +10,11 @@
         "niger",
         "nigger",
         "niggger",
-        "nigggger",
-        
-        "🇳",
-        ":regional_indicator_i:",
-        ":regional_indicator_g:",
-        ":regional_indicator_e:",
-        ":regional_indicator_r:",
-        ":regional_indicator_a:"
+        "nigggger"
     ],
 
-    "comment2": "1st is original, second is what to change to",
+    "comment2": "1st object means the if found in the unfiltered text, 2nd object means to change it into it",
+    "comment3": "Example: ['@', 'a'], if @ is found it will be turned into the letter a",
     "_replace_letters": [
         [" ", ""],
         ["/", ""],
@@ -28,12 +22,11 @@
         ["_", ""],
         ["\\", ""],
 
+        
         ["m", "n"],
         ["w", "n"],
-
-        ["@", "a"],
-        ["()", "a"],
-
+        
+        ["🇮", "i"],
         ["!", "i"],
         ["1", "i"],
         ["|", "i"],
@@ -47,8 +40,13 @@
         ["'", "i"],
         ["\"", "i"],
         
+        ["@", "a"],
+        ["()", "a"],
+
         ["()", "e"]
+
     ],
+
 
     "_allowed_letters": [
         "a",
