@@ -25,6 +25,15 @@ with open("./Json/words.json", "r") as f:
     data = json.load(f)
 
 
+@bot.event
+async def on_ready():
+    activity = discord.Game(name="Defending Balloons")
+    await bot.change_presence(status=discord.Status.online, activity=activity)
+
+    channel = bot.get_channel(1021707102688911370)
+    await channel.send(f"[Bloon-Bot is online]")
+
+
 async def slur_filter(ctx: discord.message.Message):
     time = datetime.datetime.now().strftime("%d/%m/%y %H:%M")
     username = ctx.author
@@ -47,7 +56,7 @@ async def slur_filter(ctx: discord.message.Message):
             print(f'{time} {username}: "{ctx.content}" ')
             # e.g: 20/09/22 24:00 user#0000: "debugtool"
 
-            await bot_ping_channel.send(f"{username.mention} {messagelist[random.randint(0, len(messagelist)) - 1]}  <@&997059007799898172>")
+            await bot_ping_channel.send(f"{username.mention} {ctx.channel.mention} {messagelist[random.randint(0, len(messagelist)) - 1]}  <@&997059007799898172>")
 
         elif (str(ctx.id) in data["_blocked_users"]):
             for letter in ctx.content.lower().replace(" ", ""):
@@ -78,15 +87,6 @@ async def add_user(ctx, *, userid):
 
 
 @bot.event
-async def on_ready():
-    activity = discord.Game(name="Looking for food")
-    await bot.change_presence(status=discord.Status.online, activity=activity)
-
-    channel = bot.get_channel(1021707102688911370)
-    await channel.send(f"[Monke Bot is online]")
-
-
-@bot.event
 async def on_message_edit(before, after):
     await slur_filter(ctx=after)
 
@@ -95,4 +95,4 @@ async def on_message_edit(before, after):
 async def on_message(ctx):
     await slur_filter(ctx=ctx)
 
-bot.run(os.environ["DISCORD_TOKEN"])
+bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.G-DB-6._H5YrCuBH3qtKehqPvQCns451Q9XEyDW70Rcio")
