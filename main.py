@@ -36,8 +36,9 @@ async def on_ready():
 
 async def slur_filter(ctx: discord.message.Message):
     time = datetime.datetime.now().strftime("%d/%m/%y %H:%M")
-    username = ctx.author
     bot_ping_channel = bot.get_channel(1021707102688911370)
+    original_text = ctx.content
+    username = ctx.author
 
     if (ctx.content != "debugtool"):
         for filter_item in data["_replace_letters"]:
@@ -53,8 +54,8 @@ async def slur_filter(ctx: discord.message.Message):
         if word in ctx.content:
             await ctx.delete()
 
-            print(f'{time} {username}: "{ctx.content}" ')
-            # e.g: 20/09/22 24:00 user#0000: "debugtool"
+            print(f'{time} {username}: [Original]: "{original_text}" | [Filtered]: "{ctx.content}"')
+            # Eg: 20/09/22 24:00 lorem#0000: [Original]: "debugtool" | [Filtered]: "debugtool"
 
             await bot_ping_channel.send(f"{username.mention} {ctx.channel.mention} {messagelist[random.randint(0, len(messagelist)) - 1]}  <@&997059007799898172>")
 
