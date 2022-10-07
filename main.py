@@ -96,4 +96,4 @@ async def on_message_edit(before, after):
 async def on_message(ctx):
     await slur_filter(ctx=ctx)
 
-bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.G-DB-6._H5YrCuBH3qtKehqPvQCns451Q9XEyDW70Rcio")
+bot.run(os.environ["DISCORD_TOKEN"])
