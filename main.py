@@ -132,6 +132,10 @@ async def setchannel(ctx):
 async def printserver(ctx):
     print(server_data)
 
+@bot.command()
+async def ping(ctx):
+    await ctx.send(f"I see your everymove with {round(bot.latency * 1000, 1)}ms latency.")
+
 
 @bot.command()
 async def help(ctx):
@@ -156,4 +160,4 @@ async def on_message(ctx):
     await slur_filter(ctx=ctx)
 
 
-bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.GzjBcZ.IiIO8zG8RNbBX0SNQvP7MaVXqeZNKse9KiIIts")
+bot.run(os.environ["DISCORD_TOKEN"])
