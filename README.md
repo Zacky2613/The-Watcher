@@ -1,8 +1,9 @@
-# monke-bot
+# The-Watcher
 
-A Discord bot made by Zacky2613 & BreakerOfWind ind that contains a nword filter, for the monke server.
+A Discord bot mainly developed by Zacky2613 with help from BreakerOfWind.
+This contains a 
 
 ## Features
-- A racial slur filter which is easier to modify and add onto
-- A user blacklist which forces them to only send letters, numbers, and symbols found a keyboard.
+- A configurable racial slur detector with customizable punishments & reporting.
+- A user blacklist that forces them to send only 
 
