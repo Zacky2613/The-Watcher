@@ -10,11 +10,9 @@
         "niggger",
         "nigggger"
     ],
-
     "_blocked_users": [
-
+        
     ],
-    
     "comment2": "1st object means the if found in the unfiltered text, 2nd object means to change it into it",
     "comment3": "Example: ['@', 'a'], if @ is found it will be turned into the letter a",
     "_replace_letters": [
