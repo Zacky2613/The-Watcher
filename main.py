@@ -28,8 +28,7 @@ async def on_ready():
 
 async def getreportchannel(ctx: discord.message.Message):
     if (str(ctx.guild.id) in server_data["servers"]):
-        return bot.get_channel(server_data["servers"]
-                [f"{ctx.message.guild.id}"]["channel"])
+        return bot.get_channel(int(server_data["servers"][f"{ctx.guild.id}"]["channel"]))
 
     else:
         return False
@@ -53,9 +52,6 @@ async def slur_filter(ctx: discord.message.Message):
     filtered_text = filtered_text.replace("🇳", "n").replace("🇮", "i") \
                             .replace("🇬", "g").replace("🇦", "a🇦") \
                             .replace("🇪", "e").replace("🇷", "r")
-    
-    ctx.content = ctx.content.replace("1", "a").replace("2", "b").replace("3", "c").replace("4", "d").replace("5", "e").replace("6", "f").replace("7", "g") \
-                            .replace("8", "h").replace("9", "i")
 
     for word in data["_banned_words"]:
         if word in filtered_text:
@@ -65,7 +61,7 @@ async def slur_filter(ctx: discord.message.Message):
             # Eg: 20/09/22 24:00 lorem#0000: [Original]: "debugtool" | [Filtered]: "debugtool"
 
             if (report_channel is not False):
-                await report_channel.send(f"{username.mention}-{ctx.channel.mention} '{original_text}'")
+                await report_channel.send(f"{username.mention}-{ctx.channel.mention}: \"{original_text}\"")
 
             elif (report_channel is False):  # Error for "no channel found on server"
                 ...
@@ -160,4 +156,4 @@ async def on_message(ctx):
     await slur_filter(ctx=ctx)
 
 
-bot.run(os.environ["DISCORD_TOKEN"])
+bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.GzjBcZ.IiIO8zG8RNbBX0SNQvP7MaVXqeZNKse9KiIIts")
