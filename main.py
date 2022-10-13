@@ -20,12 +20,11 @@ with open("./Json/servers.json", "r") as f:
 
 @bot.event
 async def on_ready():
-    activity = discord.Game(name="Watching every conversation.")
+    activity = discord.Game(name="Watching.")
     await bot.change_presence(status=discord.Status.online, activity=activity)
 
     channel = bot.get_channel(1021707102688911370)
     await channel.send("[The Watcher is online]")
-
 
 async def getreportchannel(ctx: discord.message.Message):
     if (str(ctx.guild.id) in server_data["servers"]):
@@ -128,6 +127,11 @@ async def setchannel(ctx):
         botmsg = await ctx.channel.send("You do not have the permissions to change the channel.")
         await asyncio.sleep(2)
         await botmsg.delete()
+
+
+@bot.command()
+async def printserver(ctx):
+    print(server_data)
 
 
 @bot.command()
