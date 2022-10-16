@@ -99,20 +99,20 @@ async def blacklistuser(ctx, *, userid):
 async def setchannel(ctx):
     if ctx.author.guild_permissions.administrator is True:
         # Adding new server to server_data.
-        if ctx.message.guild.id not in server_data:
+        if str(ctx.message.guild.id) not in server_data["servers"]:
             server_data["servers"][f"{ctx.message.guild.id}"] = {}
             server_data["servers"][f"{ctx.message.guild.id}"]["channel"] = str(ctx.channel.id)
 
             await ctx.channel.send("Successfully added channel. Reports will be Reported here")
 
-        # If current channel is already selected.
-        elif ctx.channel.id in server_data["servers"][f"{ctx.message.guild.id}"]["channel"]:
-            await ctx.channel.send("This channel currently inuse already.")
+        # If same channel is selected already.
+        elif str(ctx.channel.id) in server_data["servers"][f"{ctx.message.guild.id}"]["channel"]:
+            await ctx.channel.send("This channel is already selected.")
 
             return
 
-        # Changing the channel used in the server.
-        elif ctx.message.guild.id in server_data["servers"][f"{ctx.message.guild.id}"]:
+        # If different channel is already selected in the server.
+        elif str(ctx.message.guild.id) in server_data["servers"]:
             server_data["servers"][f"{ctx.message.guild.id}"] = {}
             server_data["servers"][f"{ctx.message.guild.id}"]["channel"] = str(ctx.channel.id)
 
@@ -160,4 +160,4 @@ async def on_message(ctx):
     await slur_filter(ctx=ctx)
 
 
-bot.run(os.environ["DISCORD_TOKEN"])
+bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.Gk7__m.Off3Ax3QmUj2laclMkgxyzbabxDuIg-q0hwz1k")
