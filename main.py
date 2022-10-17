@@ -64,33 +64,37 @@ async def slur_filter(ctx: discord.message.Message):
                 await report_channel.send(f"{username.mention}-{ctx.channel.mention}: \"{original_text}\"")
 
             elif (report_channel is False):  # Error for "no channel found on server"
-                ...
+                await ctx.channel.send(f"{username.mention}-{ctx.channel.mention}: \"{original_text}\" **[Please select a channel to funnel reports into]**")
 
-        elif (str(ctx.id) in data["_blocked_users"]):
+        elif (str(ctx.author.id) in data["_blocked_users"]):
             for letter in filtered_text:
                 if letter not in data["_allowed_letters"]:
                     await ctx.delete()
-                    await ctx.channel.send(f"{username.mention} You've lost the privilege of saying special characters <:trollface:938366103934103622>")
+                    await ctx.channel.send(f"{username.mention} You cannot use special characters.")
 
                     return  # If caught using different character.
-            break
 
     # After this point we know they haven't said anything wrong.
     await bot.process_commands(ctx)
 
 
 @bot.command()
-async def blacklistuser(ctx, *, userid):
+async def blacklist(ctx, *, userid):
     if ctx.author.guild_permissions.administrator is True:
         userid = userid.replace("<", "").replace(">", "").replace("@", "")
-        data["_blocked_users"].append(userid)
 
-        with open("./Json/words.json", "w") as f:
-            json.dump(data, f, indent=4)
+        if (userid not in data["_blocked_users"]):
+            data["_blocked_users"].append(userid)
 
-        botmsg = await ctx.channel.send(f"Userid '{userid}' Succesfully added to blacklist.")
-        await asyncio.sleep(2)
-        await botmsg.delete()
+            with open("./Json/words.json", "w") as f:
+                json.dump(data, f, indent=4)
+
+            botmsg = await ctx.channel.send(f"Userid '{userid}' Succesfully added to blacklist.")
+        else:
+            await ctx.channel.send("User is already on blacklist.")
+            return
+
+
 
     print(f"Added Userid to blacklist [{userid}]")
 
@@ -142,7 +146,7 @@ async def help(ctx):
     embed = discord.Embed(title=" ", description="Help Menu for the Watcher Discord Bot", color=0xff0000)
     embed.set_author(name="Help Menu\n")
     embed.add_field(name="!setchannel", value="(Admin Only) Set channel that the command sent into to report detected by the bot.", inline=False)
-    embed.add_field(name="!blacklistuser", value="(Admin Only) Add a user to a blacklist where they can only say assci letters.", inline=False)
+    embed.add_field(name="!blacklist @user#0000", value="(Admin Only) Add a user to a blacklist where they can only say assci letters.", inline=False)
     embed.set_footer(text="Watching Every Conversation.")
     await ctx.send(embed=embed)
 
