@@ -11,24 +11,16 @@ import os
 bot = commands.Bot(command_prefix='!', Intents=Intents)
 bot.remove_command("help")
 
+server_data = {"servers": {}}
+
 with open("./Json/words.json", "r") as f:
     data = json.load(f)
 
-with open("./Json/servers.json", "r") as f:
-    server_data = json.load(f)
-
-
-@bot.event
-async def on_ready():
-    activity = discord.Game(name="Watching.")
-    await bot.change_presence(status=discord.Status.online, activity=activity)
-
-    channel = bot.get_channel(1021707102688911370)
-    await channel.send("[The Watcher is online]")
 
 async def getreportchannel(ctx: discord.message.Message):
     if (str(ctx.guild.id) in server_data["servers"]):
-        return bot.get_channel(int(server_data["servers"][f"{ctx.guild.id}"]["channel"]))
+        return bot.get_channel(int(server_data["servers"]
+                                [f"{ctx.guild.id}"]["channel"]))
 
     else:
         return False
@@ -50,8 +42,8 @@ async def slur_filter(ctx: discord.message.Message):
             )
 
     filtered_text = filtered_text.replace("🇳", "n").replace("🇮", "i") \
-                            .replace("🇬", "g").replace("🇦", "a🇦") \
-                            .replace("🇪", "e").replace("🇷", "r")
+                        .replace("🇬", "g").replace("🇦", "a🇦") \
+                        .replace("🇪", "e").replace("🇷", "r")
 
     for word in data["_banned_words"]:
         if word in filtered_text:
@@ -78,35 +70,60 @@ async def slur_filter(ctx: discord.message.Message):
     await bot.process_commands(ctx)
 
 
+@bot.event
+async def on_ready():
+    activity = discord.Game(name="Watching.")
+    await bot.change_presence(status=discord.Status.online, activity=activity)
+
+    channel = bot.get_channel(1021707102688911370)
+    await channel.send("[The Watcher is online]")
+
+    # Grabbing server & blacklist data:
+    serverchannel = bot.get_channel(1031818960502525952)
+    blacklistchannel = bot.get_channel(1031819046477369365)
+
+    servers_grabed = await serverchannel.history(limit=200).flatten()
+    blacklist_grabbed = await blacklistchannel.history(limit=200).flatten()
+
+    for i in servers_grabed:
+        guildid, channelid = i.content.split(" | ")
+        server_data["servers"][f"{guildid}"] = {}
+        server_data["servers"][f"{guildid}"]["channel"] = str(channelid)
+
+    for i in blacklist_grabbed:
+        data["_blocked_users"].append(i.content)
+
+
 @bot.command()
 async def blacklist(ctx, *, userid):
+    blacklistchannel = bot.get_channel(1031819046477369365)
+
     if ctx.author.guild_permissions.administrator is True:
         userid = userid.replace("<", "").replace(">", "").replace("@", "")
 
         if (userid not in data["_blocked_users"]):
             data["_blocked_users"].append(userid)
 
-            with open("./Json/words.json", "w") as f:
-                json.dump(data, f, indent=4)
-
-            botmsg = await ctx.channel.send(f"Userid '{userid}' Succesfully added to blacklist.")
+            await blacklistchannel.send(userid)
+            await ctx.channel.send("Successfully added userid '{userid}' to blacklist")
         else:
-            await ctx.channel.send("User is already on blacklist.")
+            await ctx.channel.send(f"User is already on blacklist.")
             return
-
-
 
     print(f"Added Userid to blacklist [{userid}]")
 
 
 @bot.command()
 async def setchannel(ctx):
+    serverchannel = bot.get_channel(1031818960502525952)
+
     if ctx.author.guild_permissions.administrator is True:
         # Adding new server to server_data.
         if str(ctx.message.guild.id) not in server_data["servers"]:
-            server_data["servers"][f"{ctx.message.guild.id}"] = {}
-            server_data["servers"][f"{ctx.message.guild.id}"]["channel"] = str(ctx.channel.id)
+            server_data["servers"][f"{ctx.message.guild.id}"] = {"channel": str(ctx.channel.id)}
+            server_data["servers"][f"{ctx.message.guild.id}"] = {"channel": str(ctx.channel.id)}
 
+            await serverchannel.send(f"{ctx.message.guild.id} | {ctx.channel.id}")
             await ctx.channel.send("Successfully added channel. Reports will be Reported here")
 
         # If same channel is selected already.
@@ -117,24 +134,16 @@ async def setchannel(ctx):
 
         # If different channel is already selected in the server.
         elif str(ctx.message.guild.id) in server_data["servers"]:
-            server_data["servers"][f"{ctx.message.guild.id}"] = {}
-            server_data["servers"][f"{ctx.message.guild.id}"]["channel"] = str(ctx.channel.id)
+            server_data["servers"][f"{ctx.message.guild.id}"] = {"channel": str(ctx.channel.id)}
 
+            await serverchannel.send(f"{ctx.message.guild.id} | {ctx.channel.id}")
             await ctx.channel.send("[WARNING: this server already has a selected channel and has been changed to this]")
-
-        with open("./Json/servers.json", "w") as f:
-            json.dump(server_data, f, indent=4)
-            f.close()
 
     else:
         botmsg = await ctx.channel.send("You do not have the permissions to change the channel.")
         await asyncio.sleep(2)
         await botmsg.delete()
 
-
-@bot.command()
-async def printserver(ctx):
-    print(server_data)
 
 @bot.command()
 async def ping(ctx):
@@ -164,4 +173,4 @@ async def on_message(ctx):
     await slur_filter(ctx=ctx)
 
 
-bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.Gk7__m.Off3Ax3QmUj2laclMkgxyzbabxDuIg-q0hwz1k")
+bot.run(os.environ["DISCORD_TOKEN"])
