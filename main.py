@@ -110,7 +110,8 @@ async def blacklist(ctx, *, userid):
             await ctx.channel.send(f"User is already on blacklist.")
             return
 
-    print(f"Added Userid to blacklist [{userid}]")
+    await ctx.channel.send(f"Successfully added '{await bot.fetch_user(userid)}' to blacklist.")
+    
 
 
 @bot.command()
@@ -173,4 +174,4 @@ async def on_message(ctx):
     await slur_filter(ctx=ctx)
 
 
-bot.run(os.environ["DISCORD_TOKEN"])
+bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.G8vHvR.51MG81vDVCaMAHm7E3PbXjTmTlNmq5Z2B6LICo")
