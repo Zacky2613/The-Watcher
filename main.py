@@ -66,7 +66,7 @@ async def slur_filter(ctx: discord.message.Message):
 
                     return  # If caught using different character.
 
-    # After this point we know they haven't said anything wrong.
+    # After this point we know they're fine.
     await bot.process_commands(ctx)
 
 
@@ -105,7 +105,7 @@ async def blacklist(ctx, *, userid):
             data["_blocked_users"].append(userid)
 
             await blacklistchannel.send(userid)
-            await ctx.channel.send("Successfully added userid '{userid}' to blacklist")
+            await ctx.channel.send(f"Successfully added userid '{userid}' to blacklist")
         else:
             await ctx.channel.send(f"User is already on blacklist.")
             return
