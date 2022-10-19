@@ -174,4 +174,4 @@ async def on_message(ctx):
     await slur_filter(ctx=ctx)
 
 
-bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.G8vHvR.51MG81vDVCaMAHm7E3PbXjTmTlNmq5Z2B6LICo")
+bot.run(os.environ["DISCORD_TOKEN"])
