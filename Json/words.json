@@ -10,7 +10,7 @@
         "niggger",
         "nigggger"
     ],
-    "_blocked_users": [
+    "blacklist": [
 
     ],
     "comment2": "1st object means the if found in the unfiltered text, 2nd object means to change it into it",
