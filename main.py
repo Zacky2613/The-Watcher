@@ -16,18 +16,17 @@ server_data = {"servers": {}}
 with open("./Json/words.json", "r") as f:
     data = json.load(f)
 
-
+# Used to get the channel that the bot posts reports to.
 async def getreportchannel(ctx: discord.message.Message):
     if (str(ctx.guild.id) in server_data["servers"]):
         return bot.get_channel(int(server_data["servers"]
                                 [f"{ctx.guild.id}"]["channel"]))
 
-    else:
+    else:  # If no channel is found (aka they haven't set one)
         return False
 
 
 async def slur_filter(ctx: discord.message.Message):
-    time = datetime.datetime.now().strftime("%d/%m/%y %H:%M")
     report_channel = await getreportchannel(ctx)
     username = ctx.author
 
@@ -49,25 +48,23 @@ async def slur_filter(ctx: discord.message.Message):
         if word in filtered_text:
             await ctx.delete()
 
-            print(f'{time} {username}: [Original]: "{original_text}" | [Filtered]: "{filtered_text}"')
-            # Eg: 20/09/22 24:00 lorem#0000: [Original]: "debugtool" | [Filtered]: "debugtool"
-
             if (report_channel is not False):
                 await report_channel.send(f"{username.mention}-{ctx.channel.mention}: \"{original_text}\"")
 
-            elif (report_channel is False):  # Error for "no channel found on server"
+            elif (report_channel is False):  # Error for "No channel has been selected on the server"
                 await ctx.channel.send(f"{username.mention}-{ctx.channel.mention}: \"{original_text}\" **[Please select a channel to funnel reports into]**")
 
-        elif (str(ctx.author.id) in data["_blocked_users"]):
+        elif (str(ctx.author.id) in data["blacklist"]):  # User blacklist check.
             for letter in filtered_text:
                 if letter not in data["_allowed_letters"]:
                     await ctx.delete()
+
                     botmsg = await ctx.channel.send(f"{username.mention} You cannot use special characters.")
                     await asyncio.sleep(2)
                     await botmsg.delete()
 
-                    return  # If caught using different character.
-
+                    return
+    
     # After this point we know they're fine.
     await bot.process_commands(ctx)
 
@@ -84,16 +81,16 @@ async def on_ready():
     serverchannel = bot.get_channel(1031818960502525952)
     blacklistchannel = bot.get_channel(1031819046477369365)
 
-    servers_grabed = await serverchannel.history(limit=200).flatten()
+    servers_grabbed = await serverchannel.history(limit=200).flatten()
     blacklist_grabbed = await blacklistchannel.history(limit=200).flatten()
 
-    for i in servers_grabed:
+    for i in servers_grabbed:
         guildid, channelid = i.content.split(" | ")
         server_data["servers"][f"{guildid}"] = {}
         server_data["servers"][f"{guildid}"]["channel"] = str(channelid)
 
     for i in blacklist_grabbed:
-        data["_blocked_users"].append(i.content)
+        data["blacklist"].append(i.content)
 
 
 @bot.command()
@@ -103,8 +100,8 @@ async def blacklist(ctx, *, userid):
     if ctx.author.guild_permissions.administrator is True:
         userid = userid.replace("<", "").replace(">", "").replace("@", "")
 
-        if (userid not in data["_blocked_users"]):
-            data["_blocked_users"].append(userid)
+        if (userid not in data["blacklist"]):
+            data["blacklist"].append(userid)
 
             await blacklistchannel.send(userid)
             await ctx.channel.send(f"Successfully added '{await bot.fetch_user(userid)}' to blacklist.")
@@ -137,7 +134,7 @@ async def setchannel(ctx):
             server_data["servers"][f"{ctx.message.guild.id}"] = {"channel": str(ctx.channel.id)}
 
             await serverchannel.send(f"{ctx.message.guild.id} | {ctx.channel.id}")
-            await ctx.channel.send("[WARNING: this server already has a selected channel and has been changed to this]")
+            await ctx.channel.send("[WARNING: A different channel is this server is already selected and is now this channel]")
 
     else:
         botmsg = await ctx.channel.send("You don't have permissions to change the channel.")
@@ -162,6 +159,9 @@ async def help(ctx):
 
 @bot.event
 async def on_member_update(before, after):
+    # Because of the structure of slur_filter() I've had to remake it here-
+    # for it's different situation of not being messages but instead nicknames
+    
     report_channel = await getreportchannel(after)
 
     filtered_text = after.nick
@@ -179,6 +179,7 @@ async def on_member_update(before, after):
 
         for word in data["_banned_words"]:
             if word in filtered_text:
+                # Reverts the username back to what it was before.
                 await after.edit(nick=before.nick)
 
                 await report_channel.send(f"{after.mention} Tried to change his nickname to \"{filtered_text}\"")
