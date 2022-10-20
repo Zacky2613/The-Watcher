@@ -1,4 +1,3 @@
-from discord.flags import Intents
 from discord.ext import commands
 import discord.utils
 import datetime
@@ -8,7 +7,8 @@ import json
 import os
 
 
-bot = commands.Bot(command_prefix='!', Intents=Intents)
+intent = discord.Intents(messages=True, guilds=True, members=True)
+bot = commands.Bot(command_prefix='!', intents=intent)
 bot.remove_command("help")
 
 server_data = {"servers": {}}
@@ -42,8 +42,8 @@ async def slur_filter(ctx: discord.message.Message):
             )
 
     filtered_text = filtered_text.replace("🇳", "n").replace("🇮", "i") \
-                        .replace("🇬", "g").replace("🇦", "a🇦") \
-                        .replace("🇪", "e").replace("🇷", "r")
+        .replace("🇬", "g").replace("🇦", "a") \
+        .replace("🇪", "e").replace("🇷", "r")
 
     for word in data["_banned_words"]:
         if word in filtered_text:
@@ -62,7 +62,9 @@ async def slur_filter(ctx: discord.message.Message):
             for letter in filtered_text:
                 if letter not in data["_allowed_letters"]:
                     await ctx.delete()
-                    await ctx.channel.send(f"{username.mention} You cannot use special characters.")
+                    botmsg = await ctx.channel.send(f"{username.mention} You cannot use special characters.")
+                    await asyncio.sleep(2)
+                    await botmsg.delete()
 
                     return  # If caught using different character.
 
@@ -105,13 +107,10 @@ async def blacklist(ctx, *, userid):
             data["_blocked_users"].append(userid)
 
             await blacklistchannel.send(userid)
-            await ctx.channel.send(f"Successfully added userid '{userid}' to blacklist")
+            await ctx.channel.send(f"Successfully added '{await bot.fetch_user(userid)}' to blacklist.")
         else:
-            await ctx.channel.send(f"User is already on blacklist.")
+            await ctx.channel.send(f"User '{await bot.fetch_user(userid)}' is already on blacklist.")
             return
-
-    await ctx.channel.send(f"Successfully added '{await bot.fetch_user(userid)}' to blacklist.")
-    
 
 
 @bot.command()
@@ -141,24 +140,48 @@ async def setchannel(ctx):
             await ctx.channel.send("[WARNING: this server already has a selected channel and has been changed to this]")
 
     else:
-        botmsg = await ctx.channel.send("You do not have the permissions to change the channel.")
+        botmsg = await ctx.channel.send("You don't have permissions to change the channel.")
         await asyncio.sleep(2)
         await botmsg.delete()
 
 
 @bot.command()
 async def ping(ctx):
-    await ctx.send(f"I see your everymove with {round(bot.latency * 1000, 1)}ms latency.")
+    await ctx.send(f"I see your everymove with {round(bot.latency * 1000)}ms latency.")
 
 
 @bot.command()
 async def help(ctx):
     embed = discord.Embed(title=" ", description="Help Menu for the Watcher Discord Bot", color=0xff0000)
     embed.set_author(name="Help Menu\n")
-    embed.add_field(name="!setchannel", value="(Admin Only) Set channel that the command sent into to report detected by the bot.", inline=False)
-    embed.add_field(name="!blacklist @user#0000", value="(Admin Only) Add a user to a blacklist where they can only say assci letters.", inline=False)
+    embed.add_field(name="!setchannel", value="(Admin) Set channel to send reports to.", inline=False)
+    embed.add_field(name="!blacklist @user#0000", value="(Admin) User mentioned can only send assci letters.", inline=False)
     embed.set_footer(text="Watching Every Conversation.")
     await ctx.send(embed=embed)
+
+
+@bot.event
+async def on_member_update(before, after):
+    report_channel = await getreportchannel(after)
+
+    filtered_text = after.nick
+    if filtered_text is not None:
+        if (filtered_text != "debugtool"):
+            for filter_item in data["_replace_letters"]:
+                filtered_text = filtered_text.lower().replace(
+                    filter_item[0],
+                    filter_item[1]
+                )
+
+        filtered_text = filtered_text.replace("🇳", "n").replace("🇮", "i") \
+            .replace("🇬", "g").replace("🇦", "a") \
+            .replace("🇪", "e").replace("🇷", "r")
+
+        for word in data["_banned_words"]:
+            if word in filtered_text:
+                await after.edit(nick=before.nick)
+
+                await report_channel.send(f"{after.mention} Tried to change his nickname to \"{filtered_text}\"")
 
 
 @bot.event
