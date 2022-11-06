@@ -39,9 +39,12 @@ async def slur_filter(ctx: discord.message.Message):
                 filter_item[1]
             )
 
+    # Because of a reason I don't understand I have to manually-
+    # Place the emoji filter here.
     filtered_text = filtered_text.replace("🇳", "n").replace("🇮", "i") \
         .replace("🇬", "g").replace("🇦", "a") \
-        .replace("🇪", "e").replace("🇷", "r")
+        .replace("🇪", "e").replace("🇷", "r") \
+        .replace("❗", "i")
 
     for word in data["_banned_words"]:
         if word in filtered_text:
@@ -174,7 +177,8 @@ async def on_member_update(before, after):
 
         filtered_text = filtered_text.replace("🇳", "n").replace("🇮", "i") \
             .replace("🇬", "g").replace("🇦", "a") \
-            .replace("🇪", "e").replace("🇷", "r")
+            .replace("🇪", "e").replace("🇷", "r") \
+            .replace("❗", "i")
 
         for word in data["_banned_words"]:
             if word in filtered_text:
