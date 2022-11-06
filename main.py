@@ -6,7 +6,7 @@ import json
 import os
 
 
-intent = discord.Intents(messages=True, guilds=True, members=True)
+intent = discord.Intents.all()
 bot = commands.Bot(command_prefix='!', intents=intent)
 bot.remove_command("help")
 
@@ -25,7 +25,7 @@ async def getreportchannel(ctx: discord.message.Message):
         return False
 
 
-async def slur_filter(ctx: discord.message.Message):
+async def slur_filter(ctx, command: bool):
     report_channel = await getreportchannel(ctx)
     username = ctx.author
 
@@ -56,6 +56,8 @@ async def slur_filter(ctx: discord.message.Message):
             elif (report_channel is False):  # Error for "No channel has been selected on the server"
                 await ctx.channel.send(f"{username.mention}-{ctx.channel.mention}: \"{original_text}\" **[Please select a channel to funnel reports into]**")
 
+            return True
+
         elif (str(ctx.author.id) in data["blacklist"]):  # User blacklist check.
             for letter in filtered_text:
                 if letter not in data["_allowed_letters"]:
@@ -65,10 +67,13 @@ async def slur_filter(ctx: discord.message.Message):
                     await asyncio.sleep(2)
                     await botmsg.delete()
 
-                    return
+                    return True
     
     # After this point we know they're fine.
-    await bot.process_commands(ctx)
+    if (command == True):
+        await bot.process_commands(ctx)
+    else:
+        return False
 
 
 @bot.event
@@ -76,22 +81,19 @@ async def on_ready():
     activity = discord.Game(name="Watching.")
     await bot.change_presence(status=discord.Status.online, activity=activity)
 
-    channel = bot.get_channel(1021707102688911370)
-    await channel.send("[The Watcher is online]")
-
     # Grabbing server & blacklist data:
     serverchannel = bot.get_channel(1031818960502525952)
     blacklistchannel = bot.get_channel(1031819046477369365)
 
-    servers_grabbed = await serverchannel.history(limit=200).flatten()
-    blacklist_grabbed = await blacklistchannel.history(limit=200).flatten()
+    servers_grabbed = serverchannel.history(limit=200)
+    blacklist_grabbed = blacklistchannel.history(limit=200)
 
-    for i in servers_grabbed:
+    async for i in servers_grabbed:
         guildid, channelid = i.content.split(" | ")
         server_data["servers"][f"{guildid}"] = {}
         server_data["servers"][f"{guildid}"]["channel"] = str(channelid)
 
-    for i in blacklist_grabbed:
+    async for i in blacklist_grabbed:
         data["blacklist"].append(i.content)
 
 
@@ -110,6 +112,29 @@ async def blacklist(ctx, *, userid):
         else:
             await ctx.channel.send(f"User '{await bot.fetch_user(userid)}' is already on blacklist.")
             return
+
+
+@bot.command()
+async def clearchat(ctx):
+    await ctx.message.delete()
+
+    channel_to_clear = bot.get_channel(ctx.channel.id)
+    channel_messages = channel_to_clear.history(limit=200)
+
+    message_count = 0
+    async for msg in channel_messages:
+        if msg.author.bot:
+            return     
+
+        result = await slur_filter(ctx=msg, command=False)
+        if (result == True):  # If slur is found
+            message_count += 1
+
+        await asyncio.sleep(0.33)
+
+    botmsg = await ctx.channel.send(f"Deleted `{message_count}` messages flagged with the n-word")
+    await asyncio.sleep(2.5)
+    await botmsg.delete()
 
 
 @bot.command()
@@ -155,6 +180,8 @@ async def help(ctx):
     embed.set_author(name="Help Menu\n")
     embed.add_field(name="!setchannel", value="(Admin) Set channel to send reports to.", inline=False)
     embed.add_field(name="!blacklist @user#0000", value="(Admin) User mentioned can only send assci letters.", inline=False)
+    embed.add_field(name="!clearchat", value="(Admin) Use this command to clear out any previous nword messages in the channel the command is sent in.", inline=False)
+    embed.add_field(name="!ping", value="Shows the bot's ping.", inline=False)
     embed.set_footer(text="Watching Every Conversation.")
     await ctx.send(embed=embed)
 
@@ -190,7 +217,7 @@ async def on_member_update(before, after):
 
 @bot.event
 async def on_message_edit(before, after):
-    await slur_filter(ctx=after)
+    await slur_filter(ctx=after, command=True)
 
 
 @bot.event
@@ -198,7 +225,7 @@ async def on_message(ctx):
     if ctx.author.bot:
         return
 
-    await slur_filter(ctx=ctx)
+    await slur_filter(ctx=ctx, command=True)
 
 
 bot.run(os.environ["DISCORD_TOKEN"])
