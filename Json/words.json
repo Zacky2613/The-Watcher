@@ -5,10 +5,12 @@
         "nigga",
         "niggga",
         "nigggga",
+        "niggggga",
         "niger",
         "nigger",
         "niggger",
-        "nigggger"
+        "nigggger", 
+        "niggggger"
     ],
     "blacklist": [
 
@@ -90,6 +92,10 @@
         ],
         [
             ";",
+            "i"
+        ],
+        [
+            "j",
             "i"
         ],
         [
