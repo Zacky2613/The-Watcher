@@ -29,10 +29,11 @@ async def slur_filter(ctx, command: bool):
     report_channel = await getreportchannel(ctx)
     username = ctx.author
 
-    filtered_text, original_text = ctx.content
+    filtered_text = ctx.content
+    original_text = ctx.content
 
     if (filtered_text != "debugtool"):
-        for filter_item, in data["_replace_letters"]:
+        for filter_item in data["_replace_letters"]:
             filtered_text = filtered_text.lower().replace(
                 filter_item[0],
                 filter_item[1]
@@ -57,15 +58,11 @@ async def slur_filter(ctx, command: bool):
 
             return True
 
-        # Blacklist user check.
-        elif (str(ctx.author.id) in data["blacklist"]):  
+        elif (str(ctx.author.id) in data["blacklist"]):  # User blacklist check.
             for letter in filtered_text:
                 if letter not in data["_allowed_letters"]:
                     await ctx.delete()
 
-                    if (report_channel is not False):
-                        await report_channel.send(f"{username.mention}-{ctx.channel.mention}: \"{original_text}\" [SPECIAL CHARACTER]")
-                    
                     botmsg = await ctx.channel.send(f"{username.mention} You cannot use special characters.")
                     await asyncio.sleep(2)
                     await botmsg.delete()
@@ -135,7 +132,7 @@ async def clearchat(ctx):
 
         await asyncio.sleep(0.33)
 
-    botmsg = await ctx.channel.send(f"Deleted {message_count} messages flagged with the n-word")
+    botmsg = await ctx.channel.send(f"Deleted `{message_count}` messages flagged with the n-word")
     await asyncio.sleep(2.5)
     await botmsg.delete()
 
