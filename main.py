@@ -1,5 +1,5 @@
 from discord.ext import commands
-import discord.utils
+import discord.ext.commands
 import discord
 import asyncio
 import json
@@ -29,10 +29,10 @@ async def slur_filter(ctx, command: bool):
     report_channel = await getreportchannel(ctx)
     username = ctx.author
 
-    filtered_text, original_text = ctx.content
+    filtered_text, original_text = ctx.content, ctx.content
 
     if (filtered_text != "debugtool"):
-        for filter_item, in data["_replace_letters"]:
+        for filter_item in data["_replace_letters"]:
             filtered_text = filtered_text.lower().replace(
                 filter_item[0],
                 filter_item[1]
@@ -97,7 +97,8 @@ async def on_ready():
         server_data["servers"][f"{guildid}"]["channel"] = str(channelid)
 
     async for i in blacklist_grabbed:
-        data["blacklist"].append(i.content)
+        userid, username = i.content.split(" | ")
+        data["blacklist"].append(userid)
 
 
 @bot.command()
@@ -107,14 +108,33 @@ async def blacklist(ctx, *, userid):
     if ctx.author.guild_permissions.administrator is True:
         userid = userid.replace("<", "").replace(">", "").replace("@", "")
 
-        if (userid not in data["blacklist"]):
-            data["blacklist"].append(userid)
+        try:
+            if (userid not in data["blacklist"]):
+                data["blacklist"].append(userid)
+                await blacklistchannel.send(f"{userid} | \"{await bot.fetch_user(userid)}\"")
+                await ctx.channel.send(f"Successfully added \"{await bot.fetch_user(userid)}\" to blacklist.")
 
-            await blacklistchannel.send(userid)
-            await ctx.channel.send(f"Successfully added '{await bot.fetch_user(userid)}' to blacklist.")
-        else:
-            await ctx.channel.send(f"User '{await bot.fetch_user(userid)}' is already on blacklist.")
-            return
+            else:  # If user is in blacklist.
+                data["blacklist"].remove(userid)
+                blacklist_grabbed = blacklistchannel.history(limit=50)
+
+                async for i in blacklist_grabbed:
+                    remove_userid = i.content.split(" | ", 0)
+                    if (remove_userid == userid):
+                        await i.delete()
+                        await ctx.channel.send(f"Successfully removed \"{await bot.fetch_user(userid)}\" from blacklist.")
+
+                # await ctx.channel.send(f"User '{await bot.fetch_user(userid)}' is already on blacklist.")
+                return
+
+        # Exception when userid is unknown
+        except discord.errors.NotFound:
+            botmsg = await ctx.channel.send(f"Failed to grab user from supplied user. Please check the userid.")
+            await asyncio.sleep(3)
+            await botmsg.delete()
+
+
+
 
 
 @bot.command()
@@ -231,4 +251,4 @@ async def on_message(ctx):
     await slur_filter(ctx=ctx, command=True)
 
 
-bot.run(os.environ["DISCORD_TOKEN"])
+bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.GYy66C.QsMy4jtyyoZwSz8pU0D5ROBwVHp2mpZOhTYix0")
