@@ -15,6 +15,7 @@ server_data = {"servers": {}}
 with open("./Json/words.json", "r") as f:
     data = json.load(f)
 
+
 # Used to get the channel that the bot posts reports to.
 async def getreportchannel(ctx: discord.message.Message):
     if (str(ctx.guild.id) in server_data["servers"]):
@@ -45,35 +46,37 @@ async def slur_filter(ctx, command: bool):
         .replace("🇪", "e").replace("🇷", "r") \
         .replace("❗", "i")
 
+    message_format = f"{username.mention}-{ctx.channel.mention}: \"{original_text}\""
+
     for word in data["_banned_words"]:
         if word in filtered_text:
             await ctx.delete()
 
             if (report_channel is not False):
-                await report_channel.send(f"{username.mention}-{ctx.channel.mention}: \"{original_text}\"")
+                await report_channel.send(message_format)
 
-            elif (report_channel is False):  # Error for "No channel has been selected on the server"
-                await ctx.channel.send(f"{username.mention}-{ctx.channel.mention}: \"{original_text}\" **[Please select a channel to funnel reports into]**")
+            elif (report_channel is False):  # Error for "No selected channel"
+                await ctx.channel.send(f"{message_format} **[Please select a channel, do `!help` for more information.]**")
 
             return True
 
         # Blacklist user check.
-        elif (str(ctx.author.id) in data["blacklist"]):  
+        elif (str(ctx.author.id) in data["blacklist"]):
             for letter in filtered_text:
                 if letter not in data["_allowed_letters"]:
                     await ctx.delete()
 
                     if (report_channel is not False):
-                        await report_channel.send(f"{username.mention}-{ctx.channel.mention}: \"{original_text}\" [SPECIAL CHARACTER]")
-                    
+                        await report_channel.send(f"{message_format} [SPECIAL CHARACTER]")
+
                     botmsg = await ctx.channel.send(f"{username.mention} You cannot use special characters.")
                     await asyncio.sleep(2)
                     await botmsg.delete()
 
                     return True
-    
+
     # After this point we know they're fine.
-    if (command == True):
+    if (command is True):
         await bot.process_commands(ctx)
     else:
         return False
@@ -111,6 +114,7 @@ async def blacklist(ctx, *, userid):
         try:
             if (userid not in data["blacklist"]):
                 data["blacklist"].append(userid)
+
                 await blacklistchannel.send(f"{userid} | \"{await bot.fetch_user(userid)}\"")
                 await ctx.channel.send(f"Successfully added \"{await bot.fetch_user(userid)}\" to blacklist.")
 
@@ -119,22 +123,22 @@ async def blacklist(ctx, *, userid):
                 blacklist_grabbed = blacklistchannel.history(limit=50)
 
                 async for i in blacklist_grabbed:
-                    remove_userid = i.content.split(" | ", 0)
+                    remove_userid, username = i.content.split(" | ")
+                    print(remove_userid)
+
                     if (remove_userid == userid):
+                        print("yep")
                         await i.delete()
                         await ctx.channel.send(f"Successfully removed \"{await bot.fetch_user(userid)}\" from blacklist.")
+                    print("nope")
 
-                # await ctx.channel.send(f"User '{await bot.fetch_user(userid)}' is already on blacklist.")
                 return
 
         # Exception when userid is unknown
         except discord.errors.NotFound:
-            botmsg = await ctx.channel.send(f"Failed to grab user from supplied user. Please check the userid.")
+            botmsg = await ctx.channel.send("Failed to grab user from supplied user. Please check the userid.")
             await asyncio.sleep(3)
             await botmsg.delete()
-
-
-
 
 
 @bot.command()
@@ -147,10 +151,10 @@ async def clearchat(ctx):
     message_count = 0
     async for msg in channel_messages:
         if msg.author.bot:
-            return     
+            return
 
         result = await slur_filter(ctx=msg, command=False)
-        if (result == True):  # If slur is found
+        if (result is True):  # If slur is found
             message_count += 1
 
         await asyncio.sleep(0.33)
@@ -202,7 +206,7 @@ async def help(ctx):
     embed = discord.Embed(title=" ", description="Help Menu for the Watcher Discord Bot", color=0xff0000)
     embed.set_author(name="Help Menu\n")
     embed.add_field(name="!setchannel", value="(Admin) Set channel to send reports to.", inline=False)
-    embed.add_field(name="!blacklist @user#0000", value="(Admin) User mentioned can only send assci letters.", inline=False)
+    embed.add_field(name="!blacklist @user#0001", value="(Admin) User mentioned can only send assci letters.", inline=False)
     embed.add_field(name="!clearchat", value="(Admin) Use this command to clear out any previous nword messages in the channel the command is sent in.", inline=False)
     embed.add_field(name="!ping", value="Shows the bot's ping.", inline=False)
     embed.set_footer(text="Watching Every Conversation.")
@@ -213,7 +217,7 @@ async def help(ctx):
 async def on_member_update(before, after):
     # Because of the structure of slur_filter() I've had to remake it here-
     # for it's different situation of not being messages but instead nicknames
-    
+
     report_channel = await getreportchannel(after)
 
     filtered_text = after.nick
@@ -251,4 +255,5 @@ async def on_message(ctx):
     await slur_filter(ctx=ctx, command=True)
 
 
-bot.run(os.environ["DISCORD_TOKEN"])
+# bot.run(os.environ["DISCORD_TOKEN"])
+bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.GoqgMt.J2NQspoF8dB2KpBpxGpi1gypPKidaZ2ositNWk")
