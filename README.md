@@ -1,5 +1,7 @@
 # The-Watcher
 
+## [Add the bot to your Discord Server!](https://discord.com/api/oauth2/authorize?client_id=1002831837657317427&permissions=8&scope=bot)
+
 A Discord bot mainly developed by Zacky2613 with help from BreakerOfWind.
 
 This contains a real time message montioring system to look for the nword and then alert staff.
