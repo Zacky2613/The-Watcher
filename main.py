@@ -12,8 +12,8 @@ bot = commands.Bot(command_prefix='!', intents=intent)
 bot.remove_command("help")
 
 server_data = {"servers": {}}
-server_db = os.environ["server_db"]
-blacklist_db = os.environ["blacklist_db"]
+server_db = int(os.environ["server_db"])
+blacklist_db = int(os.environ["blacklist_db"])
 
 
 with open("./Json/words.json", "r") as f:
