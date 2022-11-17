@@ -1,3 +1,4 @@
+from datetime import timedelta
 from discord.ext import commands
 import discord.ext.commands
 import discord
@@ -11,6 +12,9 @@ bot = commands.Bot(command_prefix='!', intents=intent)
 bot.remove_command("help")
 
 server_data = {"servers": {}}
+server_db = os.environ["server_db"]
+blacklist_db = os.environ["blacklist_db"]
+
 
 with open("./Json/words.json", "r") as f:
     data = json.load(f)
@@ -19,15 +23,16 @@ with open("./Json/words.json", "r") as f:
 # Used to get the channel that the bot posts reports to.
 async def getreportchannel(ctx: discord.message.Message):
     if (str(ctx.guild.id) in server_data["servers"]):
-        return bot.get_channel(int(server_data["servers"]
-                                [f"{ctx.guild.id}"]["channel"]))
+        
+        return bot.get_channel(int(server_data["servers"][f"{ctx.guild.id}"]["channel"])), \
+                server_data["servers"][f"{ctx.guild.id}"]["alert_ping"]
+
 
     else:  # If no channel is found (aka they haven't set one)
-        return False
-
+        return False, False
 
 async def slur_filter(ctx, command: bool):
-    report_channel = await getreportchannel(ctx)
+    report_channel, alert_ping = await getreportchannel(ctx)
     username = ctx.author
 
     filtered_text, original_text = ctx.content, ctx.content
@@ -46,7 +51,7 @@ async def slur_filter(ctx, command: bool):
         .replace("🇪", "e").replace("🇷", "r") \
         .replace("❗", "i")
 
-    message_format = f"{username.mention}-{ctx.channel.mention}: \"{original_text}\""
+    message_format = f"{username.mention}-{ctx.channel.mention}: \"{original_text}\" {alert_ping}"
 
     for word in data["_banned_words"]:
         if word in filtered_text:
@@ -57,6 +62,14 @@ async def slur_filter(ctx, command: bool):
 
             elif (report_channel is False):  # Error for "No selected channel"
                 await ctx.channel.send(f"{message_format} **[Please select a channel, do `!help` for more information.]**")
+                break
+
+            try:
+                duration = timedelta(minutes=30)
+                await username.timeout(duration, reason="Said the n-word.")
+
+            except discord.errors.Forbidden:  # Missing Permissions (role order)
+                await report_channel.send("**I have failed to timeout someone for saying the n-word because of permission issues, please promote the-watcher role to the top of the role list.**")
 
             return True
 
@@ -69,9 +82,8 @@ async def slur_filter(ctx, command: bool):
                     if (report_channel is not False):
                         await report_channel.send(f"{message_format} [SPECIAL CHARACTER]")
 
-                    botmsg = await ctx.channel.send(f"{username.mention} You cannot use special characters.")
-                    await asyncio.sleep(2)
-                    await botmsg.delete()
+                    await ctx.channel.send(f"{username.mention} You cannot use special characters.", delete_after=2)
+
 
                     return True
 
@@ -88,25 +100,28 @@ async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=activity)
 
     # Grabbing server & blacklist data:
-    serverchannel = bot.get_channel(1031818960502525952)
-    blacklistchannel = bot.get_channel(1031819046477369365)
+    serverchannel = bot.get_channel(server_db)
+    blacklistchannel = bot.get_channel(blacklist_db)
 
     servers_grabbed = serverchannel.history(limit=200)
     blacklist_grabbed = blacklistchannel.history(limit=200)
 
     async for i in servers_grabbed:
-        guildid, channelid = i.content.split(" | ")
+        guildid, channelid, alert_ping = i.content.split(" | ")
         server_data["servers"][f"{guildid}"] = {}
         server_data["servers"][f"{guildid}"]["channel"] = str(channelid)
+        server_data["servers"][f"{guildid}"]["alert_ping"] = str(alert_ping)
+
+    print(server_data)
 
     async for i in blacklist_grabbed:
-        userid, username = i.content.split(" | ")
+        userid = i.content.split(" | ", 1)[0]
         data["blacklist"].append(userid)
 
 
 @bot.command()
 async def blacklist(ctx, *, userid):
-    blacklistchannel = bot.get_channel(1031819046477369365)
+    blacklistchannel = bot.get_channel(blacklist_db)
 
     if ctx.author.guild_permissions.administrator is True:
         userid = userid.replace("<", "").replace(">", "").replace("@", "")
@@ -123,22 +138,18 @@ async def blacklist(ctx, *, userid):
                 blacklist_grabbed = blacklistchannel.history(limit=50)
 
                 async for i in blacklist_grabbed:
-                    remove_userid, username = i.content.split(" | ")
-                    print(remove_userid)
+                    remove_userid = i.content.split(" | ", 1)[0]
 
                     if (remove_userid == userid):
-                        print("yep")
                         await i.delete()
                         await ctx.channel.send(f"Successfully removed \"{await bot.fetch_user(userid)}\" from blacklist.")
-                    print("nope")
 
                 return
 
         # Exception when userid is unknown
         except discord.errors.NotFound:
-            botmsg = await ctx.channel.send("Failed to grab user from supplied user. Please check the userid.")
-            await asyncio.sleep(3)
-            await botmsg.delete()
+            await ctx.channel.send("Failed to grab user from supplied user. Please check the userid.", delete_after=3)
+
 
 
 @bot.command()
@@ -157,43 +168,50 @@ async def clearchat(ctx):
         if (result is True):  # If slur is found
             message_count += 1
 
-        await asyncio.sleep(0.33)
 
-    botmsg = await ctx.channel.send(f"Deleted {message_count} messages flagged with the n-word")
-    await asyncio.sleep(2.5)
-    await botmsg.delete()
+    await ctx.channel.send(f"Deleted {message_count} messages flagged with the n-word", delete_after=2)
+
 
 
 @bot.command()
-async def setchannel(ctx):
-    serverchannel = bot.get_channel(1031818960502525952)
+async def setchannel(ctx, *, alert_ping):
+    serverchannel = bot.get_channel(server_db)
 
     if ctx.author.guild_permissions.administrator is True:
         # Adding new server to server_data.
         if str(ctx.message.guild.id) not in server_data["servers"]:
-            server_data["servers"][f"{ctx.message.guild.id}"] = {"channel": str(ctx.channel.id)}
-            server_data["servers"][f"{ctx.message.guild.id}"] = {"channel": str(ctx.channel.id)}
+            server_data["servers"][f"{ctx.message.guild.id}"] = {"channel": str(ctx.channel.id), "alert_ping": str(alert_ping)}
 
-            await serverchannel.send(f"{ctx.message.guild.id} | {ctx.channel.id}")
-            await ctx.channel.send("Successfully added channel. Reports will be Reported here")
+            await serverchannel.send(f"{ctx.message.guild.id} | {ctx.channel.id} | {alert_ping}")
+            await ctx.channel.send(f"Successfully added channel. Reports will be Reported here {alert_ping}")
 
-        # If same channel is selected already.
-        elif str(ctx.channel.id) in server_data["servers"][f"{ctx.message.guild.id}"]["channel"]:
-            await ctx.channel.send("This channel is already selected.")
 
-            return
+        # If same channel and mod ping is the same
+        elif str(ctx.channel.id) in server_data["servers"][f"{ctx.message.guild.id}"]["channel"] \
+            and alert_ping in server_data["servers"][f"{ctx.message.guild.id}"]["alert_ping"]:
+
+            await ctx.channel.send("This channel and ping are already selected.")
+
+
+        # If same channel but different alert ping.
+        elif str(ctx.channel.id) in server_data["servers"][f"{ctx.message.guild.id}"]["channel"] \
+            and alert_ping is not server_data["servers"][f"{ctx.message.guild.id}"]["alert_ping"]:
+
+            server_data["servers"][f"{ctx.message.guild.id}"] = {"channel": str(ctx.channel.id), "alert_ping": str(alert_ping)}
+            await ctx.channel.send(f"")
+
 
         # If different channel is already selected in the server.
         elif str(ctx.message.guild.id) in server_data["servers"]:
-            server_data["servers"][f"{ctx.message.guild.id}"] = {"channel": str(ctx.channel.id)}
+            server_data["servers"][f"{ctx.message.guild.id}"] = {"channel": str(ctx.channel.id), "alert_ping": str(alert_ping)}
 
-            await serverchannel.send(f"{ctx.message.guild.id} | {ctx.channel.id}")
+            await serverchannel.send(f"{ctx.message.guild.id} | {ctx.channel.id} | {alert_ping}")
             await ctx.channel.send("[WARNING: A different channel is this server is already selected and is now this channel]")
 
     else:
-        botmsg = await ctx.channel.send("You don't have permissions to change the channel.")
-        await asyncio.sleep(2)
-        await botmsg.delete()
+        await ctx.channel.send("You don't have permissions to change the channel.", delete_after=2)
+
+    print(server_data)
 
 
 @bot.command()
@@ -255,4 +273,5 @@ async def on_message(ctx):
     await slur_filter(ctx=ctx, command=True)
 
 
-bot.run(os.environ["DISCORD_TOKEN"])
+# bot.run(os.environ["DISCORD_TOKEN"])
+bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.GGH2cC.oH9HXSsXuJlROrWuuQi5Dr0BXk1zopOuiyw19g")
