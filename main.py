@@ -12,8 +12,8 @@ bot = commands.Bot(command_prefix='!', intents=intent)
 bot.remove_command("help")
 
 server_data = {"servers": {}}
-# server_db = os.environ["server_db"]
-# blacklist_db = os.environ["blacklist_db"]
+server_db = os.environ["server_db"]
+blacklist_db = os.environ["blacklist_db"]
 
 
 with open("./Json/words.json", "r") as f:
@@ -100,8 +100,8 @@ async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=activity)
 
     # Grabbing server & blacklist data:
-    serverchannel = bot.get_channel(1031818960502525952)
-    blacklistchannel = bot.get_channel(1031819046477369365)
+    serverchannel = bot.get_channel(server_db)
+    blacklistchannel = bot.get_channel(blacklist_db)
 
     servers_grabbed = serverchannel.history(limit=200)
     blacklist_grabbed = blacklistchannel.history(limit=200)
@@ -121,7 +121,7 @@ async def on_ready():
 
 @bot.command()
 async def blacklist(ctx, *, userid):
-    blacklistchannel = bot.get_channel(1031819046477369365)
+    blacklistchannel = bot.get_channel(blacklist_db)
 
     if ctx.author.guild_permissions.administrator is True:
         userid = userid.replace("<", "").replace(">", "").replace("@", "")
@@ -175,7 +175,7 @@ async def clearchat(ctx):
 
 @bot.command()
 async def setchannel(ctx, *, alert_ping):
-    serverchannel = bot.get_channel(1031818960502525952)
+    serverchannel = bot.get_channel(server_db)
 
     if ctx.author.guild_permissions.administrator is True:
         # Adding new server to server_data.
@@ -273,6 +273,4 @@ async def on_message(ctx):
     await slur_filter(ctx=ctx, command=True)
 
 
-# bot.run(os.environ["DISCORD_TOKEN"])
-print(os.environ["DISCORD_TOKEN"])
-# bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.GGZws4.ubHMLdZj91ueTjfugdwwoVkYd9Mr5UEAXIJgYM")
+bot.run(os.environ["DISCORD_TOKEN"])
