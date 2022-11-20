@@ -10,7 +10,7 @@ This contains a real time message montioring system to look for the nword and th
 
 - Good filter system which is constantly being updated.
 - A blacklist which blocks users from sending special characters, made for people trying to bypass the bot with unique characters.
-- Real time nick-name monitorer so nicknames cannot be changed to the nword (using same filter as messages).
+- Real time nick-name monitoring so nicknames cannot be changed to the nword (using same filter as messages).
 - A command to clear chat of previous bypasses that are now patched.
 - Mod pings/Automation of punishments to offenders.
 - (Upcoming) Report bypasses.
@@ -25,3 +25,4 @@ This contains a real time message montioring system to look for the nword and th
 - First, every time a new message is sent it is scanned using the bots filter.
 - If it finds the nword it will timeout the user for 30 minutes and send a alert to the mods with what they said
 - If that fails, then it checks if the user is on the blacklist
+- If users get around the filter using special characters run the `!blacklist @user` command so they can only send the characters found on the standard qwerty keyboard.
