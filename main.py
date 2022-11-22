@@ -28,7 +28,7 @@ with open("./Json/words.json", "r") as f:
 # Used to get the channel that the bot posts reports to.
 async def getreportchannel(ctx: discord.message.Message):
     if (str(ctx.guild.id) in server_data):
-
+        
         # returns: reports channel + mod ping
         return bot.get_channel(int(server_data[f"{ctx.guild.id}"]["channel"])), \
                 server_data[f"{ctx.guild.id}"]["alert_ping"]
@@ -72,7 +72,7 @@ async def db_remove(type: str, data: dict or list, remove_item: any):
     remove_item: any: The item to remove from the database.
 
 
-    P.S: When the type is server the guildid is passed through-
+    P.S: When type=server the guildid is passed through-
     even if it's to change the alert_ping because no matter what-
     it just deletes the message outright then replaces it with an new one.
     """
