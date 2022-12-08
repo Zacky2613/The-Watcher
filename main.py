@@ -18,8 +18,10 @@ emoji_list = [
     ["🇦", "a"], ["🇪", "e"], ["🇷", "r"], ["❗", "i"]
 ]
 
-server_db = int(os.environ["server_db"])
-blacklist_db = int(os.environ["blacklist_db"])
+# server_db = int(os.environ["server_db"])
+server_db = 1042729344147136512
+blacklist_db = 1042729431095062570
+# blacklist_db = int(os.environ["blacklist_db"])
 
 with open("./Json/words.json", "r") as f:
     word_data = json.load(f)
@@ -28,13 +30,13 @@ with open("./Json/words.json", "r") as f:
 # Used to get the channel that the bot posts reports to.
 async def getreportchannel(ctx: discord.message.Message):
     if (str(ctx.guild.id) in server_data):
-        
+
         # returns: reports channel + mod ping
         return bot.get_channel(int(server_data[f"{ctx.guild.id}"]["channel"])), \
                 server_data[f"{ctx.guild.id}"]["alert_ping"]
 
     else:  # If no channel is found (aka they haven't set one)
-        return False, False
+        return False, "@set-role"
 
 
 @bot.event
@@ -97,24 +99,31 @@ async def slur_filter(ctx, command: bool, type="message", before=None):
     report_channel, alert_ping = await getreportchannel(ctx)
 
     if (type == "nick"):
-        filtered_text = ctx.nick
+        if (ctx.nick == None):
+            return
+        else:
+            filtered_text = ctx.nick
     else:
         filtered_text, original_text = ctx.content, ctx.content
         message_format = f"{ctx.author.mention}-{ctx.channel.mention}: \"{original_text}\" {alert_ping}"
 
-    if (filtered_text != "debugtool"):
-        for filter_item in word_data["_replace_letters"]:
-            filtered_text = filtered_text.lower().replace(
-                filter_item[0],
-                filter_item[1]
-            )
-        # Because of a converation issue with unicode characters in json files
-        # being read to python it wrecks it up, so I have to place it here.
-        for emoji_item in emoji_list:
-            filtered_text = filtered_text.lower().replace(
-                emoji_item[0],
-                emoji_item[1]
-            )
+    try:
+        if (filtered_text != "debugtool"):
+            for filter_item in word_data["_replace_letters"]:
+                filtered_text = filtered_text.lower().replace(
+                    filter_item[0],
+                    filter_item[1]
+                )
+            # Because of a converation issue with unicode characters in json files
+            # being read to python it wrecks it up, so I have to place it here.
+            for emoji_item in emoji_list:
+                filtered_text = filtered_text.lower().replace(
+                    emoji_item[0],
+                    emoji_item[1]
+                )
+
+    except AttributeError as e: 
+        pass  # fixed .lower() when nick = None.
 
     for word in word_data["_banned_words"]:
         if word in filtered_text:
@@ -122,7 +131,7 @@ async def slur_filter(ctx, command: bool, type="message", before=None):
                 # Reverts the username back to what it was before.
                 await ctx.edit(nick=before.nick)
 
-                await report_channel.send(f"{ctx.nick} Tried to change his nickname to \"{filtered_text}\"")
+                await report_channel.send(f"{ctx.nick} Tried to change his nickname to \"{filtered_text}\" [Timed out for 12 hours.]")
                 return
 
             await ctx.delete()
@@ -135,10 +144,11 @@ async def slur_filter(ctx, command: bool, type="message", before=None):
                 break
 
             try:
-                duration = timedelta(minutes=30)
-                await ctx.author.timeout(duration, reason="Said the n-word.")
+                if (ctx.author.id != 452675869366943755):
+                    duration = timedelta(hours=12)
+                    await ctx.author.timeout(duration, reason="Said the n-word.")
 
-            except discord.errors.Forbidden:  # Role order problem.
+            except discord.errors.Forbidden:  # Role order permission problem.
                 await report_channel.send("**Failed to timeout a user, please put the bot at the top of the role list**")
 
             return True
@@ -223,14 +233,14 @@ async def setchannel(ctx, *, alert_ping):
 
         # Same channel and alert ping.
         elif str(ctx.channel.id) in server_data[f"{ctx.message.guild.id}"]["channel"] \
-            and alert_ping in server_data[f"{ctx.message.guild.id}"]["alert_ping"]:
+                and alert_ping in server_data[f"{ctx.message.guild.id}"]["alert_ping"]:
 
             await ctx.channel.send("This channel and ping are already selected.")
             return
 
         # Alert ping change.
         elif str(ctx.channel.id) in server_data[f"{ctx.message.guild.id}"]["channel"] \
-            and alert_ping != server_data[f"{ctx.message.guild.id}"]["alert_ping"]:
+                and alert_ping != server_data[f"{ctx.message.guild.id}"]["alert_ping"]:
 
             server_data[f"{ctx.message.guild.id}"] = {"channel": str(ctx.channel.id), "alert_ping": str(alert_ping)}
 
@@ -241,7 +251,7 @@ async def setchannel(ctx, *, alert_ping):
 
         # Channel change.
         elif str(ctx.message.guild.id) in server_data \
-            and alert_ping is not server_data[f"{ctx.message.guild.id}"]["alert_ping"]:
+                and alert_ping is not server_data[f"{ctx.message.guild.id}"]["alert_ping"]:
             server_data[f"{ctx.message.guild.id}"] = {"channel": str(ctx.channel.id), "alert_ping": str(alert_ping)}
 
             await db_remove(type="server", data=server_data, remove_item=ctx.message.guild.id)
@@ -288,4 +298,5 @@ async def on_message(ctx):
     await slur_filter(ctx=ctx, command=True)
 
 
-bot.run(os.environ["DISCORD_TOKEN"])
+# bot.run(os.environ["DISCORD_TOKEN"])
+bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.GYgmJV.t_Va3QSdBK4ubJgB275z099FPbWvJqH2S192M4")
