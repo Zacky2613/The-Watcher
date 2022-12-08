@@ -18,7 +18,7 @@ This contains a real time message montioring system to look for the nword and th
 ## Setup
 
 1. After adding the bot to your server type this command into the channel you would like nword reports to be funnled into `!setchannel @admin_ping`
-2. If any offenders try to bypass the bot my using special characters you can run the command `!blacklist @user#0001` or `!blacklist 11111111111 (userid)` and force them to only use the characters on the standard qwerty keyboard.
+2. If someone bypasses using special characters run the command `!blacklist @user#0001` or `!blacklist (userid)` and force them to only use the characters on the standard QWERTY keyboard.
 
 ## How it works
 
