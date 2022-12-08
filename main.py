@@ -18,10 +18,8 @@ emoji_list = [
     ["🇦", "a"], ["🇪", "e"], ["🇷", "r"], ["❗", "i"]
 ]
 
-# server_db = int(os.environ["server_db"])
-server_db = 1042729344147136512
-blacklist_db = 1042729431095062570
-# blacklist_db = int(os.environ["blacklist_db"])
+server_db = int(os.environ["server_db"])
+blacklist_db = int(os.environ["blacklist_db"])
 
 with open("./Json/words.json", "r") as f:
     word_data = json.load(f)
@@ -95,7 +93,7 @@ async def db_remove(type: str, data: dict or list, remove_item: any):
             return True
 
 
-async def slur_filter(ctx, command: bool, type="message", before=None):
+async def slur_filter(ctx, command=True, type="message", before=None):
     report_channel, alert_ping = await getreportchannel(ctx)
 
     if (type == "nick"):
@@ -123,7 +121,7 @@ async def slur_filter(ctx, command: bool, type="message", before=None):
                 )
 
     except AttributeError as e: 
-        pass  # fixed .lower() when nick = None.
+        pass  # .lower() when nick = None error solution.
 
     for word in word_data["_banned_words"]:
         if word in filtered_text:
@@ -131,13 +129,13 @@ async def slur_filter(ctx, command: bool, type="message", before=None):
                 # Reverts the username back to what it was before.
                 await ctx.edit(nick=before.nick)
 
-                await report_channel.send(f"{ctx.nick} Tried to change his nickname to \"{filtered_text}\" [Timed out for 12 hours.]")
+                await report_channel.send(f"{await bot.fetch_user(before.id)} Tried to change his nickname to \"{filtered_text}\"")
                 return
 
             await ctx.delete()
 
             if (report_channel is not False):
-                await report_channel.send(message_format)
+                await report_channel.send(message_format + " [Timed out for 12 hours].")
 
             elif (report_channel is False):  # Error for "No selected channel"
                 await ctx.channel.send(f"{message_format} **[Please select a channel, do `!help` for more information.]**")
@@ -282,12 +280,12 @@ async def help(ctx):
 
 @bot.event
 async def on_member_update(before, after):
-    await slur_filter(ctx=after, command=True, type="nick", before=before)
+    await slur_filter(ctx=after, command=False, type="nick", before=before)
 
 
 @bot.event
 async def on_message_edit(before, after):
-    await slur_filter(ctx=after, command=True)
+    await slur_filter(ctx=after)
 
 
 @bot.event
@@ -295,7 +293,7 @@ async def on_message(ctx):
     if ctx.author.bot:
         return
 
-    await slur_filter(ctx=ctx, command=True)
+    await slur_filter(ctx=ctx)
 
 
 bot.run(os.environ["DISCORD_TOKEN"])
