@@ -91,9 +91,6 @@ async def db_remove(type: str, data: dict or list, remove_item: any):
             # Successfully found and deleted item from database
             return True
 
-
-db_remove()
-
 async def slur_filter(ctx, command=True, type="message", before=None):
     report_channel, alert_ping = await getreportchannel(ctx)
 
