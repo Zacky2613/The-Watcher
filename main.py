@@ -60,16 +60,15 @@ async def on_ready():
 
         blacklist_data.append(userid)
 
-
 async def db_remove(type: str, data: dict or list, remove_item: any):
     """
     Removes an item from a database.
 
     Parameters
     ----------
-    type: str: Either  "server" or "blacklist"
-    data: dict or list: The client side copy of the db.
-    remove_item: any: The item to remove from the database.
+    type: str: Either  "server" or "blacklist"\n
+    data: dict or list: The client side copy of the db.\n
+    remove_item: any: The item to remove from the database.\n
 
 
     P.S: When type=server the guildid is passed through-
@@ -92,6 +91,8 @@ async def db_remove(type: str, data: dict or list, remove_item: any):
             # Successfully found and deleted item from database
             return True
 
+
+db_remove()
 
 async def slur_filter(ctx, command=True, type="message", before=None):
     report_channel, alert_ping = await getreportchannel(ctx)
