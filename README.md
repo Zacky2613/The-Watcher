@@ -1,28 +1,37 @@
-# The-Watcher
+# The Watcher
 
-## [Add the bot to your Discord Server!](https://discord.com/api/oauth2/authorize?client_id=1002831837657317427&permissions=8&scope=bot)
+[![Stars](https://img.shields.io/github/stars/Zacky2613/The-Watcher.svg)](https://github.com/Zacky2613/The-Watcher/stargazers)
+[![Release](https://img.shields.io/github/release/Zacky2613/The-Watcher.svg)](https://github.com/Zacky2613/The-Watcher/releases/latest)
+[![License](https://img.shields.io/github/license/Zacky2613/The-Watcher.svg)](https://github.com/Zacky2613/The-Watcher/blob/master/LICENSE)
 
-A Discord bot mainly developed by Zacky2613 with help from BreakerOfWind.
+A Discord bot to stop people from saying slurs and other fun topics like that!
 
-This contains a real time message montioring system to look for the nword and then alert staff.
+[![Add to your discord server](https://cdn.discordapp.com/attachments/903644674269536267/1071791719907065886/image.png)](https://discord.com/api/oauth2/authorize?client_id=1002831837657317427&permissions=8&scope=bot)
+
+---
 
 ## Features
 
-- Good filter system which is constantly being updated.
-- A blacklist which blocks users from sending special characters, made for people trying to bypass the bot with unique characters.
-- Real time nick-name monitoring so nicknames cannot be changed to the nword (using same filter as messages).
-- A command to clear chat of previous bypasses that are now patched.
-- Mod pings/Automation of punishments to offenders.
-- (Upcoming) Report bypasses.
+- Easy server setup
+- Good filter system to catch bypasses as they come.
+- A blacklist to stop people from sending 𝕤𝕡𝕖𝕔𝕚𝕒𝕝 characters
+- Nickname monitoring system which will revert it back to what it was previously and alert the staff
+- Mod pings for detected slurs and automatic 12 hour timeout.
+- Have people found a bypass that's now patched but the messages are still littered about? We have a command to clear through chats that deletes & reports messages found.
 
 ## Setup
 
-1. After adding the bot to your server type this command into the channel you would like nword reports to be funnled into `!setchannel @admin_ping`
-2. If someone bypasses using special characters run the command `!blacklist @user#0001` or `!blacklist (userid)` and force them to only use the characters on the standard QWERTY keyboard.
+Aftering adding the bot to your server here is a guide:
 
-## How it works
+1. In the channel you'd like to recieve reports in (good example is a mod channel) run the command `/setchannel @staffping` to set the channel and recieve reports.
+2. If someone bypasses the filter using 𝕤𝕡𝕖𝕔𝕚𝕒𝕝 characters run the command `/blacklist (userid)` to make them qwerty characters restricted!
 
-- First, every time a new message is sent it is scanned using the bots filter.
-- If it finds the nword it will timeout the user for 30 minutes and send a alert to the mods with what they said
-- If that fails, then it checks if the user is on the blacklist
-- If users get around the filter using special characters run the `!blacklist @user` command so they can only send the characters found on the standard qwerty keyboard.
+## Questions
+
+- Q: Will there be slash commands?
+- A: Soon, with how the bot is made and me having no prior experience with slash commands it's rather tricky but I hope to get it done soonish
+
+---
+
+- Q: Who is this for?
+- A: This is for small/medium servers with a slur problem and want a quick and easy solution
