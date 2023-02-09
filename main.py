@@ -11,12 +11,6 @@ bot.remove_command("help")
 blacklist_data = []
 server_data = {}
 
-# Emoji "_replace_letters" list.
-emoji_list = [
-    ["🇳", "n"], ["🇮", "i"], ["🇬", "g"], ["🇦", "a"],
-    ["🇦", "a"], ["🇪", "e"], ["🇷", "r"], ["❗", "i"]
-]
-
 server_db = int(os.environ["server_db"])
 blacklist_db = int(os.environ["blacklist_db"])
 
@@ -140,7 +134,7 @@ async def on_ready():
 
 async def db_remove(type: str, data: dict or list, remove_item: any):
     """
-    Removes an item from a database.
+    Removes an item from the database.
 
     Parameters
     ----------
