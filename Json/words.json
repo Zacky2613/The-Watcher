@@ -1,16 +1,22 @@
 {
     "_banned_words": [
         "debugtool",
+
         "niga",
         "nigga",
         "niggga",
         "nigggga",
         "niggggga",
+        "nigggggga",
+        "niggggggga",
+
         "niger",
         "nigger",
         "niggger",
         "nigggger", 
-        "niggggger"
+        "niggggger",
+        "niggggggger",
+        "nigggggggger"
     ],
 
     "comment2": "1st object means the if found in the unfiltered text, 2nd object means to change it into it",
@@ -57,7 +63,6 @@
         ["🇮", "i"], 
         ["🇬", "g"], 
         ["🇦", "a"],
-        ["🇦", "a"], 
         ["🇪", "e"], 
         ["🇷", "r"], 
         ["❗", "i"]
