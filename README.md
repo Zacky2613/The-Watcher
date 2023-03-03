@@ -14,6 +14,7 @@ A Discord bot to stop people from saying slurs and other fun topics like that!
 
 - Easy server setup
 - Good filter system to catch bypasses as they come.
+- Checks for messages that get edited.
 - A blacklist to stop people from sending 𝕤𝕡𝕖𝕔𝕚𝕒𝕝 characters
 - Nickname monitoring system which will revert it back to what it was previously and alert the staff
 - Mod pings for detected slurs and automatic 12 hour timeout.
@@ -26,12 +27,7 @@ Aftering adding the bot to your server here is a guide:
 1. In the channel you'd like to recieve reports in (good example is a mod channel) run the command `/setchannel @staffping` to set the channel and recieve reports.
 2. If someone bypasses the filter using 𝕤𝕡𝕖𝕔𝕚𝕒𝕝 characters run the command `/blacklist (userid)` to make them qwerty characters restricted!
 
-## Questions
-
-- Q: Will there be slash commands?
-- A: Soon, with how the bot is made and me having no prior experience with slash commands it's rather tricky but I hope to get it done soonish
-
----
+## FAQ
 
 - Q: Who is this for?
 - A: This is for small/medium servers with a slur problem and want a quick and easy solution
