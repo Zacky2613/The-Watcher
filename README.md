@@ -12,13 +12,13 @@ A Discord bot to stop people from saying slurs and other fun topics like that!
 
 ## Features
 
-- Easy server setup
-- Good filter system to catch bypasses as they come.
-- Checks for messages that get edited.
-- A blacklist to stop people from sending 𝕤𝕡𝕖𝕔𝕚𝕒𝕝 characters
-- Nickname monitoring system which will revert it back to what it was previously and alert the staff
-- Mod pings for detected slurs and automatic 12 hour timeout.
-- Have people found a bypass that's now patched but the messages are still littered about? We have a command to clear through chats that deletes & reports messages found.
+- Easy Server setup
+- Advanced multi-layer custom made from scratch text filter.
+- Checks for edited messages aswell.
+- A blacklist to stop people from sending 𝕤𝕡𝕖𝕔𝕚𝕒𝕝 characters that use the nword
+- Nickname detection.
+- Mod pings and 12 hour automatic timeout for mods/admins to decide what todo do.
+
 
 ## Setup
 
