@@ -5,14 +5,18 @@ import discord
 import json
 import os
 
+import slurfilter
+
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 bot.remove_command("help")
 
 blacklist_data = []
 server_data = {}
 
-server_db = int(os.environ["server_db"])
-blacklist_db = int(os.environ["blacklist_db"])
+server_db = 1050367619938648084
+# server_db = int(os.environ["server_db"])
+blacklist_db = 1050367648493473877
+# blacklist_db = int(os.environ["blacklist_db"])
 
 
 with open("./Json/words.json", "r", encoding="utf-8") as f:
@@ -31,85 +35,10 @@ async def getreportchannel(ctx: discord.message.Message):
         return False, "@set-role"
 
 
-async def slur_filter(ctx, command=True, type="message", before=None):
-    report_channel, alert_ping = await getreportchannel(ctx)
-
-    if (type == "nick"):  # Nickname varibale handling
-        if (ctx.nick is None):
-            return
-        else:
-            filtered_text = ctx.nick
-    else:
-        filtered_text, original_text = ctx.content, ctx.content
-        msg_format = f"{ctx.author.mention}-{ctx.channel.mention}: \"{original_text}\" {alert_ping}"
-
-    try:
-        if (filtered_text != "debugtool"):
-            for filter_item in word_data["_replace_letters"]:
-                filtered_text = filtered_text.lower().replace(
-                    filter_item[0],
-                    filter_item[1]
-                )
-
-    except AttributeError:
-        pass  # Solution to trying to .lower() nick when it's None
-
-    for word in word_data["_banned_words"]:
-        if word in filtered_text:
-            if (type == "nick"):
-                # Reverts the username back to what it was before.
-                await ctx.edit(nick=before.nick)
-
-                await report_channel.send(f"{await bot.fetch_user(before.id)} Tried to change his nickname to \"{filtered_text}\"")
-                return
-
-            await ctx.delete()  # Delete the flagged question.
-
-            if (report_channel is not False):  # Report channel selected.
-                await report_channel.send(msg_format + " [Timed out for 12 hours].")
-
-            elif (report_channel is False):  # Error for "No selected channel"
-                await ctx.channel.send(f"{msg_format} **[Please select a channel, do `!help` for more information.]**")
-                break
-
-            try:
-                if (ctx.author.id != 452675869366943755):
-                    duration = timedelta(hours=12)
-                    await ctx.author.timeout(duration, reason="Said the n-word.")
-
-            except discord.errors.Forbidden:  # Role order permission problem.
-                await report_channel.send("**Failed to timeout a user, please put the bot at the top of the role list**")
-
-            return True
-
-        # Blacklist user check.
-        elif (type != "nick"):
-            if (str(ctx.author.id) in blacklist_data):
-                for letter in filtered_text:
-                    if letter not in word_data["_allowed_letters"]:
-                        await ctx.delete()
-
-                        if (report_channel is not False):
-                            await report_channel.send(f"{msg_format} [SPECIAL CHARACTER]")
-
-                        await ctx.channel.send(f"{ctx.author.mention} You cannot use special characters.", delete_after=2)
-
-                        return True
-
-    # After this point we know they're fine.
-    if (command is True):
-        await bot.process_commands(ctx)
-    else:
-        return False  # This for the clearchat command (meaning no slur was found)
-
-
 @bot.event
 async def on_ready():
-    try:
-        await bot.tree.sync()
-        print("synced")
-    except Exception as e:
-        print(e)
+    await bot.tree.sync()
+    print("Succesfully synced.")
 
     activity = discord.Game(name="Watching.")
     await bot.change_presence(status=discord.Status.online, activity=activity)
@@ -130,6 +59,7 @@ async def on_ready():
     async for blacklist in blacklist_grabbed:
         userid = blacklist.content.split(" | ", 1)[0]
         blacklist_data.append(userid)
+
 
 
 async def db_remove(type: str, data: dict or list, remove_item: any):
@@ -213,7 +143,7 @@ async def setchannel(interaction, alert_ping: str):
             return
 
         # Alert ping change.
-        elif str(interaction.channel_id) in server_data[f"{interaction.message.guild_id}"]["channel"] \
+        elif str(interaction.channel_id) in server_data[f"{interaction.guild_id}"]["channel"] \
                 and alert_ping != server_data[f"{interaction.guild_id}"]["alert_ping"]:
 
             server_data[f"{interaction.guild_id}"] = {"channel": str(interaction.channel_id), "alert_ping": str(alert_ping)}
@@ -239,12 +169,18 @@ async def setchannel(interaction, alert_ping: str):
 
 @bot.event
 async def on_member_update(before, after):
-    await slur_filter(ctx=after, command=False, type="nick", before=before)
+    report_channel, alert_ping = await getreportchannel(after)
+    
+    await slurfilter.slur_filter(
+                ctx=after, data=(word_data, blacklist_data, report_channel, alert_ping), 
+                type="nick", before=before
+                )
 
 
 @bot.event
 async def on_message_edit(before, after):
-    await slur_filter(ctx=after)
+    report_channel, alert_ping = await getreportchannel(after)
+    await slurfilter.slur_filter(ctx=after, data=(word_data, blacklist_data, report_channel, alert_ping))
 
 
 @bot.event
@@ -252,6 +188,8 @@ async def on_message(ctx):
     if ctx.author.bot:
         return
 
-    await slur_filter(ctx=ctx)
+    report_channel, alert_ping = await getreportchannel(ctx)
+    await slurfilter.slur_filter(ctx=ctx, data=(word_data, blacklist_data, report_channel, alert_ping))
 
-bot.run(os.environ["DISCORD_TOKEN"])
+# bot.run(os.environ["DISCORD_TOKEN"])
+bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.G6J1lJ.NVgu1nZlHcYetDErJmjeI-kGHB5HttKQEeoeOs")
