@@ -1,11 +1,10 @@
-from datetime import timedelta
 from discord import app_commands
 from discord.ext import commands
+import slurfilter  # Custom import.
 import discord
 import json
 import os
 
-import slurfilter
 
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 bot.remove_command("help")
@@ -59,7 +58,6 @@ async def on_ready():
         blacklist_data.append(userid)
 
 
-
 async def db_remove(type: str, data: dict or list, remove_item: any):
     """
     Removes an item from the database.
@@ -78,7 +76,7 @@ async def db_remove(type: str, data: dict or list, remove_item: any):
     if (type == "blacklist"):
         data.remove(remove_item)
 
-    channel_to_grab = bot.get_channel(server_db if(type=="server") else blacklist_db)
+    channel_to_grab = bot.get_channel(server_db if (type == "server") else blacklist_db)
     data_grabbed = channel_to_grab.history(limit=50)
 
     async for item in data_grabbed:
@@ -170,9 +168,8 @@ async def on_member_update(before, after):
     report_channel, alert_ping = await getreportchannel(after)
 
     await slurfilter.slur_filter(
-                ctx=after, data=(word_data, blacklist_data, report_channel, alert_ping), 
-                type="nick", before=before
-                )
+                ctx=after, data=(word_data, blacklist_data, report_channel, alert_ping),
+                type="nick", before=before)
 
 
 @bot.event
