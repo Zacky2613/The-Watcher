@@ -17,7 +17,7 @@ async def slur_filter(ctx, data: tuple, type="message", before=None, list_item=0
             filtered_text = ctx.nick
     else:
         filtered_text, original_text = "", ctx.content
-        msg_format = f"{ctx.author.mention}-{ctx.channel.mention}: \"{original_text}\" {alert_ping}"
+        msg_format = f"{ctx.author.mention}-{ctx.channel.mention}: \"{original_text[0:100]}\" {alert_ping}"
 
     # Message filtering part:
     try:
