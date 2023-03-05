@@ -5,10 +5,10 @@ import discord
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 bot.remove_command("help")
 
+
 async def slur_filter(ctx, data: tuple, type="message", before=None, list_item=0):
     # Setting all needed data variables
     word_data, blacklist_data, report_channel, alert_ping = data[0], data[1], data[2], data[3]
-
 
     if (type == "nick"):  # Nickname varibale handling
         if (ctx.nick is None):
@@ -28,35 +28,34 @@ async def slur_filter(ctx, data: tuple, type="message", before=None, list_item=0
                 if (unquie_symbol != letter):
                     unquie_symbol = letter
                     filtered_text += letter
-            
+
             # Changing letters in the filter.
-                for filter_item in word_data["_replace_letters"]:
-                    try:        
-                        filtered_text = filtered_text.lower().replace(
-                            filter_item[0],
-                            filter_item[1]
-                        )
+            for filter_item in word_data["_replace_letters"]:
+                try:
+                    filtered_text = filtered_text.lower().replace(
+                        filter_item[0],
+                        filter_item[1]
+                    )
 
-                    except TypeError:  # For [[":", "i"], [":", ""]] items.
-                            filtered_text = filtered_text.lower().replace(
-                                filter_item[list_item][0],
-                                filter_item[list_item][1]
-                            )
-
+                except TypeError:  # For [[":", "i"], [":", ""]] items.
+                    filtered_text = filtered_text.lower().replace(
+                        filter_item[list_item][0],
+                        filter_item[list_item][1]
+                    )
 
         # Deleting special characters from filtered_text
         for letter in filtered_text:
             if letter not in word_data["_allowed_letters"]:
                 # Blacklist check.
                 if (str(ctx.author.id) in blacklist_data):
-                        await ctx.delete()
-                        await ctx.channel.send(f"{ctx.author.mention} You cannot use special characters.", delete_after=2)
-                        return
+                    await ctx.delete()
+                    await ctx.channel.send(f"{ctx.author.mention} You cannot use special characters.", delete_after=2)
+                    return
 
                 # Deleting found special characters.
                 filtered_text = filtered_text.replace(letter, "")
 
-        # Deletes duplicate letters.
+        # Deletes duplicate letters (again
         unquie_symbol = None
         fully_filtered_text = ""
         for letter in filtered_text:
@@ -76,10 +75,10 @@ async def slur_filter(ctx, data: tuple, type="message", before=None, list_item=0
                 # Reverts the username back to what it was before.
                 await ctx.edit(nick=before.nick)
 
-                await report_channel.send(f"{await bot.fetch_user(ctx.id)} Tried to change his nickname to \"{filtered_text}\"")
+                await report_channel.send(f"{ctx.id} Tried to change his nickname to \"{filtered_text}\"")
                 return
 
-            await ctx.delete()  # Delete the nword message
+            await ctx.delete()  # Delete flagged word
 
             if (report_channel is not False):  # Report channel selected.
                 await report_channel.send(msg_format + " [Timed out for 12 hours].")
@@ -94,9 +93,9 @@ async def slur_filter(ctx, data: tuple, type="message", before=None, list_item=0
 
             except discord.errors.Forbidden:  # Role order permission problem.
                 await report_channel.send("**Failed to timeout a user, please put the bot at the top of the role list**")
-            
-            return
 
+            return
+        
     # After this point we know they're fine.
 
     # Using recursion to do a second filter.
