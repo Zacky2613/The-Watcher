@@ -13,10 +13,8 @@ bot.remove_command("help")
 blacklist_data = []
 server_data = {}
 
-server_db = 1050367619938648084
-# server_db = int(os.environ["server_db"])
-blacklist_db = 1050367648493473877
-# blacklist_db = int(os.environ["blacklist_db"])
+server_db = int(os.environ["server_db"])
+blacklist_db = int(os.environ["blacklist_db"])
 
 
 with open("./Json/words.json", "r", encoding="utf-8") as f:
@@ -170,7 +168,7 @@ async def setchannel(interaction, alert_ping: str):
 @bot.event
 async def on_member_update(before, after):
     report_channel, alert_ping = await getreportchannel(after)
-    
+
     await slurfilter.slur_filter(
                 ctx=after, data=(word_data, blacklist_data, report_channel, alert_ping), 
                 type="nick", before=before
@@ -191,5 +189,4 @@ async def on_message(ctx):
     report_channel, alert_ping = await getreportchannel(ctx)
     await slurfilter.slur_filter(ctx=ctx, data=(word_data, blacklist_data, report_channel, alert_ping))
 
-# bot.run(os.environ["DISCORD_TOKEN"])
-bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.G6J1lJ.NVgu1nZlHcYetDErJmjeI-kGHB5HttKQEeoeOs")
+bot.run(os.environ["DISCORD_TOKEN"])
