@@ -4,38 +4,44 @@
 
         "niga",
         "nigga",
-        "niggga",
-        "nigggga",
-        "niggggga",
-        "nigggggga",
-        "niggggggga",
 
         "niger",
-        "nigger",
-        "niggger",
-        "nigggger", 
-        "niggggger",
-        "niggggggger",
-        "nigggggggger"
+        "nigger"
     ],
 
     "comment2": "1st object means the if found in the unfiltered text, 2nd object means to change it into it",
     "comment3": "Example: ['@', 'a'], if @ is found it will be turned into the letter a",
+    "comment4": "The '[[], []]' items mean when there is 2 different bypasses of the same symbol.",
     "_replace_letters": [
+
+        [[":", "i"], [":", ""]],
+
 
         [" ", ""],
         [".", ""],
         [",", ""],
         ["/", ""],
         ["-", ""],
+        ["||", ""],
+        ["*", ""],
+        ["**", ""],
+        ["***", ""],
         ["_", ""],
+        ["=", ""],
+        ["+", ""],
         ["\\", ""],
+        ["/", ""],
+        ["'", ""],
         
         ["m", "n"],
         ["w", "n"],
+        ["kn", "n"],
+        ["nn", "n"],
         
         ["!", "i"],
         ["1", "i"],
+        ["[", "i"],
+        ["]", "i"],
         ["|", "i"],
         ["*", "i"],
         ["`", "i"],
@@ -45,24 +51,34 @@
         [":", "i"],
         [";", "i"],
         ["j", "i"],
-        ["'", "i"],
         ["\"", "i"],
+        ["o", "i"],
         ["ii", "i"],
         
-        ["4", "g"],
+        ["5", "g"],
+        ["q", "g"],
+        ["9", "g"],
+        ["gg", "g"],
+        ["h", "g"],
         
         ["@", "a"],
+        ["4", "a"],
         ["()", "a"],
+        ["aa", "a"],
+
         ["()", "e"],
         ["3", "e"],
-        ["4", "e"],
+        ["u", "e"],
+        ["ee", "e"],
         
 
-        
-        ["🇳", "n"], 
-        ["🇮", "i"], 
+        ["🇳", "n"],
+        ["🇮", "i"],
+        ["1️⃣", "i"],
+        ["ℹ️", "i"], 
         ["🇬", "g"], 
         ["🇦", "a"],
+        ["🅰️", "a"],
         ["🇪", "e"], 
         ["🇷", "r"], 
         ["❗", "i"]
