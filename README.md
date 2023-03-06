@@ -19,7 +19,6 @@ A Discord bot to stop people from saying slurs and other fun topics like that!
 - Nickname detection.
 - Mod pings and 12 hour automatic timeout for mods/admins to decide what todo do.
 
-
 ## Setup
 
 Aftering adding the bot to your server here is a guide:
@@ -29,5 +28,7 @@ Aftering adding the bot to your server here is a guide:
 
 ## FAQ
 
-- Q: Who is this for?
-- A: This is for small/medium servers with a slur problem and want a quick and easy solution
+<details> 
+    <summary> Q: Who is this for? </summary>
+    A: This is for small/medium servers with a slur problem and want a quick and easy solution
+</details>
