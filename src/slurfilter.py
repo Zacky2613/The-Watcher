@@ -84,7 +84,7 @@ async def slur_filter(ctx, data: tuple, type="message", before=None, list_item=0
                 await report_channel.send(msg_format + " [Timed out for 12 hours].")
 
             elif (report_channel is False):  # Error for "No selected channel"
-                await ctx.channel.send(f"{msg_format} **[Please select a channel, do `!help` for more information.]**")
+                await ctx.channel.send(f"{msg_format} **[Please select a channel using /setchannel]**")
                 break
 
             try:
