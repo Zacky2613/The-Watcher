@@ -12,8 +12,10 @@ bot.remove_command("help")
 blacklist_data = []
 server_data = {}
 
-server_db = int(os.environ["server_db"])
-blacklist_db = int(os.environ["blacklist_db"])
+server_db = 1050367619938648084
+# server_db = int(os.environ["server_db"])
+blacklist_db = 1050367648493473877
+# blacklist_db = int(os.environ["blacklist_db"])
 
 
 with open("./Json/words.json", "r", encoding="utf-8") as f:
@@ -163,6 +165,14 @@ async def setchannel(interaction, alert_ping: str):
         await interaction.response.send_message("You don't have permissions to change the channel.", ephemeral=True)
 
 
+@bot.tree.command(name="help", description="Help command for server setup")
+async def help(interaction):
+    embed=discord.Embed(title="Watcher Help", description=" How to setup your server.", color=0x6b6b6b)
+    embed.add_field(name="1. /setchannel (mod ping)", value="to send reports to the channel you send this command in. And that's basically it. ", inline=False)
+    embed.add_field(name="2. (Optional) /blacklist (userid)", value="If people say the nword using special characters run this command to restirict them to everything avaiable on the qwerty keyboard. (no emojis either)", inline=False)
+    embed.set_footer(text="Someone found a bypass or a bug? Please message WalletConsumer#9046 to report this.")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
 @bot.event
 async def on_member_update(before, after):
     report_channel, alert_ping = await getreportchannel(after)
@@ -186,4 +196,5 @@ async def on_message(ctx):
     report_channel, alert_ping = await getreportchannel(ctx)
     await slurfilter.slur_filter(ctx=ctx, data=(word_data, blacklist_data, report_channel, alert_ping))
 
-bot.run(os.environ["DISCORD_TOKEN"])
+# bot.run(os.environ["DISCORD_TOKEN"])
+bot.run("MTAwMjgzMTgzNzY1NzMxNzQyNw.GvAD4q.1fte_3zk6RspfN6X0lHgqPoRV2SKnASal7VC2M")
