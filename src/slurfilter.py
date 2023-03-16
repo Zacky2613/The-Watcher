@@ -16,38 +16,40 @@ async def slur_filter(ctx, data: tuple, type="message", before=None, list_item=0
         else:
             filtered_text = ctx.nick
     else:
-        filtered_text, original_text = "", ctx.content
+        filtered_text, original_text = "", ctx.content  # filtered_text is set as nothing as it's made later.
         msg_format = f"{ctx.author.mention}-{ctx.channel.mention}: \"{original_text[0:100]}\" {alert_ping}"
+
 
     # Message filtering part:
     try:
-        if (filtered_text != "debugtool"):
-            # Deletes duplicate letters.
-            for trigger_word in word_data["_flagged_words"]:
+        # Deleting false postive words here. (removing from ctx.content not filtered_text)
+        for trigger_word in word_data["_flagged_words"]:
+            ctx.content = ctx.content.lower().replace(
+                trigger_word,  # False postive word.
+                ""  # Replace with nothing.
+            )
+
+        # Important Note: The creation of filtered_text is done here.
+        # Deletes duplicate letters.
+        unquie_symbol = None
+        for letter in ctx.content.lower():
+            if (unquie_symbol != letter):
+                unquie_symbol = letter
+                filtered_text += letter
+
+        # Changing letters in the filter.
+        for filter_item in word_data["_replace_letters"]:
+            try:
                 filtered_text = filtered_text.lower().replace(
-                    trigger_word,  # False postive word.
-                    ""  # Replace with nothing.
+                    filter_item[0],
+                    filter_item[1]
                 )
 
-            unquie_symbol = None
-            for letter in ctx.content.lower():
-                if (unquie_symbol != letter):
-                    unquie_symbol = letter
-                    filtered_text += letter
-
-            # Changing letters in the filter.
-            for filter_item in word_data["_replace_letters"]:
-                try:
-                    filtered_text = filtered_text.lower().replace(
-                        filter_item[0],
-                        filter_item[1]
-                    )
-
-                except TypeError:  # For [[":", "i"], [":", ""]] items.
-                    filtered_text = filtered_text.lower().replace(
-                        filter_item[list_item][0],
-                        filter_item[list_item][1]
-                    )
+            except TypeError:  # For [[":", "i"], [":", ""]] items.
+                filtered_text = filtered_text.lower().replace(
+                    filter_item[list_item][0],
+                    filter_item[list_item][1]
+                )
 
         # Deleting special characters from filtered_text
         for letter in filtered_text:
@@ -73,8 +75,6 @@ async def slur_filter(ctx, data: tuple, type="message", before=None, list_item=0
 
     except AttributeError:
         pass  # Solution to trying to .lower() nick when it's None
-    
-    print(f"{filtered_text} | {original_text}")
 
     # Taking action if word found.
     for word in word_data["_banned_words"]:
