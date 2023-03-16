@@ -55,7 +55,7 @@ async def slur_filter(ctx, data: tuple, type="message", before=None, list_item=0
                 # Deleting found special characters.
                 filtered_text = filtered_text.replace(letter, "")
 
-        # Deletes duplicate letters (again
+        # Deletes duplicate letters (again)
         unquie_symbol = None
         fully_filtered_text = ""
         for letter in filtered_text:
@@ -67,6 +67,8 @@ async def slur_filter(ctx, data: tuple, type="message", before=None, list_item=0
 
     except AttributeError:
         pass  # Solution to trying to .lower() nick when it's None
+    
+    print(f"{filtered_text} | {original_text}")
 
     # Taking action if word found.
     for word in word_data["_banned_words"]:
