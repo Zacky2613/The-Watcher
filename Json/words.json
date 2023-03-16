@@ -3,10 +3,14 @@
         "debugtool",
 
         "niga",
-        "nigga",
+        "niger"
+    ],
 
-        "niger",
-        "nigger"
+    "comment1": "Some false postive words gets picked up, this is to delete known words.",
+    "_flagged_words": [
+        "night game",
+        "minigames",
+        "shenanigans"
     ],
 
     "comment2": "1st object means the if found in the unfiltered text, 2nd object means to change it into it",

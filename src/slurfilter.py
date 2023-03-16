@@ -23,6 +23,12 @@ async def slur_filter(ctx, data: tuple, type="message", before=None, list_item=0
     try:
         if (filtered_text != "debugtool"):
             # Deletes duplicate letters.
+            for trigger_word in word_data["_flagged_words"]:
+                filtered_text = filtered_text.lower().replace(
+                    trigger_word,  # False postive word.
+                    ""  # Replace with nothing.
+                )
+
             unquie_symbol = None
             for letter in ctx.content.lower():
                 if (unquie_symbol != letter):
