@@ -8,6 +8,7 @@
 
     "comment1": "Some false postive words gets picked up, this is to delete known words.",
     "_flagged_words": [
+        "no game",
         "night game",
         "minigames",
         "shenanigans"
