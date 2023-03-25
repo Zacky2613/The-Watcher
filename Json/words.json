@@ -18,8 +18,9 @@
     "comment3": "Example: ['@', 'a'], if @ is found it will be turned into the letter a",
     "comment4": "The '[[], []]' items mean when there is 2 different bypasses of the same symbol.",
     "_replace_letters": [
-
+        
         [[":", "i"], [":", ""]],
+        [["()", "a"], ["()", "e"]],
 
 
         [" ", ""],
@@ -42,7 +43,6 @@
         
         ["w", "n"],
         ["kn", "n"],
-        ["nn", "n"],
         
         ["!", "i"],
         ["1", "i"],
@@ -64,18 +64,14 @@
         ["5", "g"],
         ["q", "g"],
         ["9", "g"],
-        ["gg", "g"],
         ["h", "g"],
         
         ["@", "a"],
         ["4", "a"],
-        ["()", "a"],
-        ["aa", "a"],
 
         ["()", "e"],
         ["3", "e"],
         ["u", "e"],
-        ["ee", "e"],
         
 
         ["🇳", "n"],
