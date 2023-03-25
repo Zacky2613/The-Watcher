@@ -6,6 +6,18 @@ bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 bot.remove_command("help")
 
 
+async def unquie_characters(text: str):
+    unquie_symbol = None
+    filtered_text = ""
+
+    for letter in text.lower():
+        if (unquie_symbol != letter):
+            unquie_symbol = letter
+            filtered_text += letter
+
+    return filtered_text
+
+
 async def slur_filter(ctx, data: tuple, type="message", before=None, list_item=0):
     # Setting all needed data variables
     word_data, blacklist_data, report_channel, alert_ping = data[0], data[1], data[2], data[3]
@@ -16,26 +28,32 @@ async def slur_filter(ctx, data: tuple, type="message", before=None, list_item=0
         else:
             filtered_text = ctx.nick
     else:
-        filtered_text, original_text = "", ctx.content  # filtered_text is set as nothing as it's made later.
+        filtered_text, original_text = ctx.content, ctx.content  # filtered_text is set as nothing as it's made later.
         msg_format = f"{ctx.author.mention}-{ctx.channel.mention}: \"{original_text[0:100]}\" {alert_ping}"
 
-
-    # Message filtering part:
+    # Text filtering section
     try:
-        # Deleting false postive words here. (removing from ctx.content not filtered_text)
+        # Deleting false postive wordsa.
         for trigger_word in word_data["_flagged_words"]:
-            ctx.content = ctx.content.lower().replace(
-                trigger_word,  # False postive word.
-                ""  # Replace with nothing.
+            filtered_text = filtered_text.lower().replace(
+                trigger_word,
+                ""
             )
 
-        # Important Note: The creation of filtered_text is done here.
-        # Deletes duplicate letters.
-        unquie_symbol = None
-        for letter in ctx.content.lower():
-            if (unquie_symbol != letter):
-                unquie_symbol = letter
-                filtered_text += letter
+        # Deleting special characters from filtered_text
+        for letter in filtered_text:
+            if letter not in word_data["_allowed_letters"]:
+                # Blacklist check.
+                if (str(ctx.author.id) in blacklist_data):
+                    await ctx.delete()
+                    await ctx.channel.send(f"{ctx.author.mention} You cannot use special characters.", delete_after=2)
+                    return
+                
+                else:
+                    # Deleting found special characters.
+                    filtered_text = filtered_text.replace(letter, "")
+
+        filtered_text = await unquie_characters(text=filtered_text)
 
         # Changing letters in the filter.
         for filter_item in word_data["_replace_letters"]:
@@ -51,30 +69,9 @@ async def slur_filter(ctx, data: tuple, type="message", before=None, list_item=0
                     filter_item[list_item][1]
                 )
 
-        # Deleting special characters from filtered_text
-        for letter in filtered_text:
-            if letter not in word_data["_allowed_letters"]:
-                # Blacklist check.
-                if (str(ctx.author.id) in blacklist_data):
-                    await ctx.delete()
-                    await ctx.channel.send(f"{ctx.author.mention} You cannot use special characters.", delete_after=2)
-                    return
-
-                # Deleting found special characters.
-                filtered_text = filtered_text.replace(letter, "")
-
-        # Deletes duplicate letters (again)
-        unquie_symbol = None
-        fully_filtered_text = ""
-        for letter in filtered_text:
-            if (unquie_symbol != letter):
-                unquie_symbol = letter
-                fully_filtered_text += letter
-
-        filtered_text = fully_filtered_text
-
     except AttributeError:
         pass  # Solution to trying to .lower() nick when it's None
+
 
     # Taking action if word found.
     for word in word_data["_banned_words"]:
@@ -87,24 +84,24 @@ async def slur_filter(ctx, data: tuple, type="message", before=None, list_item=0
                 return
 
             await ctx.delete()  # Delete flagged word
-
-            if (report_channel is not False):  # Report channel selected.
-                await report_channel.send(msg_format + " [Timed out for 12 hours].")
-
-            elif (report_channel is False):  # Error for "No selected channel"
-                await ctx.channel.send(f"{msg_format} **[Please select a channel using /setchannel]**")
-                break
+            
 
             try:
-                duration = timedelta(hours=12)
-                await ctx.author.timeout(duration, reason="Said the n-word.")
+                if (report_channel is not False):  # Server has a set report channel
+                    duration = timedelta(hours=12)
+                    await ctx.author.timeout(duration, reason="N-word detection.")
+                    await report_channel.send(f"{msg_format} [Timed out for 12 hours].")
 
             except discord.errors.Forbidden:  # Role order permission problem.
-                await report_channel.send("**Failed to timeout a user, please put the bot at the top of the role list**")
+                await report_channel.send(f"{msg_format} **[Failed to timeout user due to permission role issue, move the bot role higher up.]**")
+                return
+
+            if (report_channel is False):  # Error for "No selected channel"
+                await ctx.channel.send(f"{msg_format} **[Please select a channel using /setchannel]**")
+                return
+                
 
             return
-        
-    # After this point we know they're fine.
 
     # Using recursion to do a second filter.
     if (list_item == 0):
