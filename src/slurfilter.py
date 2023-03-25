@@ -18,11 +18,11 @@ async def unquie_characters(text: str):
     return filtered_text
 
 
-async def slur_filter(ctx, data: tuple, type="message", before=None, list_item=0):
+async def slur_filter(ctx, data: tuple, filter_type="message", before=None, list_item=0):
     # Setting all needed data variables
     word_data, blacklist_data, report_channel, alert_ping = data[0], data[1], data[2], data[3]
 
-    if (type == "nick"):  # Nickname varibale handling
+    if (filter_type == "nick"):  # Nickname varibale handling
         if (ctx.nick is None):
             return
         else:

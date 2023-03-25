@@ -177,7 +177,7 @@ async def on_member_update(before, after):
 
     await slurfilter.slur_filter(
                 ctx=after, data=(word_data, blacklist_data, report_channel, alert_ping),
-                type="nick", before=before)
+                filter_type="nick", before=before)
 
 
 @bot.event
