@@ -12,6 +12,7 @@
         "night game",
         "minigames",
         "shenanigans",
+        "have",
         "haven't"
     ],
 
@@ -65,7 +66,6 @@
         ["5", "g"],
         ["q", "g"],
         ["9", "g"],
-        ["h", "g"],
         
         ["@", "a"],
         ["4", "a"],
