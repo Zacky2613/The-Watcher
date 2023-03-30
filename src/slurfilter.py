@@ -26,10 +26,11 @@ async def slur_filter(ctx, data: tuple, filter_type="message", before=None, list
         if (ctx.nick is None):
             return
         else:
-            filtered_text = ctx.nick
+            filtered_text, original_text = ctx.nick, ctx.nick
+            nickname_format= f"**{ctx.mention}-Flagged Nickname:** \"{original_text}\" {alert_ping}"
     else:
         filtered_text, original_text = ctx.content, ctx.content  # filtered_text is set as nothing as it's made later.
-        msg_format = f"{ctx.author.mention}-{ctx.channel.mention}: \"{original_text[0:100]}\" {alert_ping}"
+        message_format = f"{ctx.author.mention}-{ctx.channel.mention}: \"{original_text[0:100]}\" {alert_ping}"
 
     # Text filtering section
     try:
@@ -76,31 +77,30 @@ async def slur_filter(ctx, data: tuple, filter_type="message", before=None, list
     # Taking action if word found.
     for word in word_data["_banned_words"]:
         if word in filtered_text:
-            if (type == "nick"):
+            if (filter_type == "nick"):
                 # Reverts the username back to what it was before.
                 await ctx.edit(nick=before.nick)
 
-                await report_channel.send(f"{ctx.id} Tried to change his nickname to \"{filtered_text}\"")
+                await report_channel.send(nickname_format)
                 return
 
             await ctx.delete()  # Delete flagged word
-            
 
             try:
                 if (report_channel is not False):  # Server has a set report channel
                     duration = timedelta(hours=12)
                     await ctx.author.timeout(duration, reason="N-word detection.")
-                    await report_channel.send(f"{msg_format} [Timed out for 12 hours].")
+                    await report_channel.send(f"{message_format} [Timed out for 12 hours].")
 
             except discord.errors.Forbidden:  # Role order permission problem.
-                await report_channel.send(f"{msg_format} **[Failed to timeout user due to permission role issue, move the bot role higher up.]**")
+                await report_channel.send(f"{message_format} **[Failed to timeout user due to permission role issue, move the bot role higher up.]**")
                 return
 
             if (report_channel is False):  # Error for "No selected channel"
-                await ctx.channel.send(f"{msg_format} **[Please select a channel using /setchannel]**")
+                await ctx.channel.send(f"{message_format} **[Please select a channel using /setchannel]**")
                 return
                 
-
+    
             return
 
     # Using recursion to do a second filter.
